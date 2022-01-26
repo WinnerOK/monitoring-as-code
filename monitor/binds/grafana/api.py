@@ -1,6 +1,6 @@
-from binds.grafana.alert import GrafanaAlert
-from controller.api_entity import ID_TYPE
-from controller.api import API
+from monitor.binds.grafana.alert import GrafanaAlert
+from monitor.controller.api_entity import ID_TYPE
+from monitor.controller.api import API
 
 
 class GrafanaAPI(API[GrafanaAlert]):
