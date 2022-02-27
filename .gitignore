@@ -1,6 +1,8 @@
 .idea
 .python-version
 
+http-client.private.env.json
+
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,pycharm,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm,macos
@@ -281,4 +283,5 @@ dmypy.json
 cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,macos
+
 
