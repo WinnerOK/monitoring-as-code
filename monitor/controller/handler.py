@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Any, Optional
 
 import requests
-from pydantic import HttpUrl
 from requests.auth import AuthBase
 
 from monitor.controller.resource import Resource, IdType
@@ -47,11 +46,11 @@ class HttpApiResourceHandler(ResourceHandler[T], ABC):
         self,
         method: str,
         url: str,
-        query: Optional[dict[str, Any]] = None
+        **request_kwargs: Any
     ) -> requests.Response:
         # todo: add retries, timeout
         return self.session.request(
             method=method,
             url=self._base_url + url,
-            data=query,
+            **request_kwargs,
         )

@@ -8,11 +8,18 @@ class FolderHandler(HttpApiResourceHandler[Folder]):
             method='GET',
             url=f"/folders/{resource_id}"
         )
+        # handle unsuccesfull read
         folder = Folder(**response.json())
         return folder
 
     def create(self, resource: Folder) -> Folder:
-        pass
+        response = self.call_api(
+            method='POST',
+            url='/folders',
+            json=resource.dict()
+        )
+        # todo: parse errors
+        return Folder(**response.json())
 
     def update(self, resource: Folder) -> Folder:
         pass

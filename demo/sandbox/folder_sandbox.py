@@ -19,7 +19,10 @@ folder = Folder(
     uid='test-project-maac-folder1'
 )
 
-read_folder = handler.read(folder.uid)
+# read_folder = handler.read(folder.uid)
+
+folder_created = handler.create(folder)
+
 
 a = 3
 

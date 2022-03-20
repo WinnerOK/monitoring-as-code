@@ -1,5 +1,5 @@
-from typing import Union
 from enum import Enum, auto
+from typing import Union
 
 from pydantic import BaseModel
 
@@ -20,7 +20,9 @@ class ResourceOps(Enum):
             ResourceOps.DELETE,
         }
 
+
 IdType = Union[str, int]
+
 
 class Resource(BaseModel):
     _local_id: IdType

@@ -59,7 +59,8 @@ query2 = AlertQuery(
     },
 )
 grafana_alert = PostableGrafanaRule(
-    condition="B",
+    condition=query2.refId,
+    # Actually displayed alert name
     title="WE_GrafanaAlertTitle",
     exec_err_state=ExecErrState.Alerting,
     no_data_state=NoDataState.Alerting,
@@ -68,7 +69,10 @@ grafana_alert = PostableGrafanaRule(
         query2,
     ],
 )
+
+# Rule aka Annotated Alert
 postable_extended_rule_node = PostableExtendedRuleNode(
+    # This name is not displayed anywhere, use grafana_alert.title
     alert="WatchEye alert",
     annotations={
         "WE_ann": "lol",
@@ -78,11 +82,14 @@ postable_extended_rule_node = PostableExtendedRuleNode(
     grafana_alert=grafana_alert,
 )
 
+# Actually a RoleGroup; Each rule -- an alert
 alert = PostableRuleGroupConfig(
+    # RoleGroup name
     name="WatchEye Alert",
     interval=Duration.parse_obj(timedelta(seconds=35)),
     rules=[postable_extended_rule_node],
 )
+
 
 alert_wrapper = GrafanaAlert(
     namespace=namespace,
