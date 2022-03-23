@@ -1,0 +1,23 @@
+@startuml state_workflow
+!theme materia-outline
+skinparam Backgroundcolor transparent
+' skinparam shadowing false
+
+
+actor User as user #White
+participant State as state
+participant Monitor as monitor
+participant "Provider" as provider
+
+
+user -> monitor : provides\nresource\nconfiguration
+state -> monitor: loads known\nresource\nconfiguration 
+
+monitor -> provider : gets state difference for\nresources' configuration
+monitor <- provider : returns calculated\nstate difference
+monitor -> provider : starts state application
+monitor <- provider : reports updated state
+
+state <- monitor : store new\nresource state
+
+@enduml
