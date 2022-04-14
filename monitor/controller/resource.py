@@ -1,10 +1,8 @@
 from enum import Enum, auto
-from typing import TypeVar, Generic, Optional
-
-from pydantic import BaseModel
+from typing import Generic, Optional, TypeVar
 
 from controller.obj import MonitoringObject
-
+from pydantic import BaseModel
 
 IdType = str
 

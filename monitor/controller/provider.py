@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Type, TypeVar, Generic, Iterable, Collection
+from typing import Collection, Generic, Iterable, Type, TypeVar
 
 from monitor.controller.resource import Resource, ResourceAction
+
 from .diff_utils import RESOURCE_DIFF
 from .handler import ResourceHandler
 from .obj import MonitoringObject
@@ -35,19 +36,14 @@ class Provider(ABC, Generic[T]):
         :param local_resources:
         :return:
         """
-        pass
 
     @abstractmethod
-    def diff(
-        self,
-        resource: Resource[T]
-    ) -> RESOURCE_DIFF:
+    def diff(self, resource: Resource[T]) -> RESOURCE_DIFF:
         """
         Diff in form of classic diff
 
         see: https://docs.python.org/3/library/difflib.html#difflib.unified_diff
         """
-        pass
 
     @abstractmethod
     def apply_actions(
@@ -60,4 +56,3 @@ class Provider(ABC, Generic[T]):
         """
         In case needed, run any finalizing actions
         """
-        pass

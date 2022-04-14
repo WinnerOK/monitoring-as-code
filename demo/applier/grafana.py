@@ -4,13 +4,13 @@ import requests
 
 from monitor.binds.grafana.alert import GrafanaAlert
 from monitor.binds.grafana.client.refined_models import (
+    AlertQuery,
     Duration,
-    PostableRuleGroupConfig,
-    PostableExtendedRuleNode,
-    PostableGrafanaRule,
     ExecErrState,
     NoDataState,
-    AlertQuery,
+    PostableExtendedRuleNode,
+    PostableGrafanaRule,
+    PostableRuleGroupConfig,
     RelativeTimeRange,
 )
 
@@ -101,7 +101,7 @@ rv = requests.post(
     url=f"http://localhost:3000/api/ruler/grafana/api/v1/rules/{namespace}/",
     auth=(username, password),
     headers={
-        'Content-type': 'application/json',
+        "Content-type": "application/json",
     },
     json=alert_wrapper.alert.json(by_alias=True),
 )

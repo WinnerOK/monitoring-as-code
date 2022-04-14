@@ -1,13 +1,11 @@
 import math
 from datetime import timedelta
 from enum import Enum
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 import durationpy
-from pydantic import (
-    BaseModel as pyBase,
-    Field,
-)
+from pydantic import BaseModel as pyBase
+from pydantic import Field
 
 
 class BaseModel(pyBase):
@@ -51,9 +49,7 @@ class RelativeTimeRange(BaseModel):
 
     class Config:
         allow_population_by_field_name = True
-        json_encoders = {
-            Duration: lambda d: d.seconds
-        }
+        json_encoders = {Duration: lambda d: d.seconds}
 
 
 class AlertQuery(BaseModel):
@@ -111,6 +107,4 @@ class PostableRuleGroupConfig(BaseModel):
     rules: Optional[List[PostableExtendedRuleNode]] = None
 
     class Config:
-        json_encoders = {
-            Duration: lambda d: str(d)
-        }
+        json_encoders = {Duration: lambda d: str(d)}

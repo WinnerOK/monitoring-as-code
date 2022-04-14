@@ -15,6 +15,10 @@ loguru = "^0.6.0"
 pytest = "^6.2.5"
 mypy = "^0.910"
 curlify = "^2.2.1"
+pyupgrade = "^2.32.0"
+black = "^22.3.0"
+autoflake = "^1.4"
+isort = "^5.10.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

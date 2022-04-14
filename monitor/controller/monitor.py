@@ -1,13 +1,17 @@
 from collections import defaultdict
-from typing import List, Dict, Type, Iterable, TypeVar
+from typing import Dict, Iterable, List, Type, TypeVar
 
 from loguru import logger
 
 from .diff_utils import print_diff
+from .exceptions import (
+    DuplicatedProviderException,
+    UnexpectedResourceStateException,
+    UnknownObjectHandlerException,
+)
 from .obj import MonitoringObject
 from .provider import Provider
-from .resource import Resource, ResourceOps, ResourceAction
-from .exceptions import UnknownObjectHandlerException, DuplicatedProviderException, UnexpectedResourceStateException
+from .resource import Resource, ResourceAction, ResourceOps
 from .state import State
 
 T = TypeVar("T", bound=MonitoringObject)
@@ -66,7 +70,9 @@ class Monitor:
                 # }
                 resources_by_provider: dict[Provider[T], Iterable[Resource[T]]] = {}
                 for provider, local_objects in objects_by_provider.items():
-                    local_resources = [Resource(local_object=obj) for obj in local_objects]
+                    local_resources = [
+                        Resource(local_object=obj) for obj in local_objects
+                    ]
                     state.fill_provider_id(local_resources)
                     resources_by_provider[provider] = local_resources
 
@@ -75,20 +81,24 @@ class Monitor:
                     synced_resources = provider.sync_resources(resources)
                     resources_by_provider[provider] = synced_resources
 
-                resource_actions_by_provider: dict[Provider[T], list[ResourceAction[T]]] = {
+                resource_actions_by_provider: dict[
+                    Provider[T], list[ResourceAction[T]]
+                ] = {
                     provider: self._calculate_actions(provider, synced_resources)
                     for provider, synced_resources in resources_by_provider.items()
                 }
 
                 if not dry_run:
-                    for provider, resource_actions in resource_actions_by_provider.items():
+                    for (
+                        provider,
+                        resource_actions,
+                    ) in resource_actions_by_provider.items():
                         provider.apply_actions(resource_actions)
                         state.update_state(resource_actions)
 
         finally:
             for provider in used_providers:
                 provider.dispose()
-
 
     def _calculate_actions(
         self,
@@ -115,7 +125,9 @@ class Monitor:
                     operation=ResourceOps.DELETE,
                 )
                 print_diff(provider.diff(resource))
-            elif resource.remote_object is not None and resource.local_object is not None:
+            elif (
+                resource.remote_object is not None and resource.local_object is not None
+            ):
                 # Either SKIP if same, or UPDATE
                 diff = provider.diff(resource)
                 if diff:

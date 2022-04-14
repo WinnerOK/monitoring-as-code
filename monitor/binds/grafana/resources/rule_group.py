@@ -1,11 +1,8 @@
 from typing import List
 
-from binds.grafana.client.refined_models import (
-    Duration,
-    PostableExtendedRuleNode,
-)
-from monitor.controller.resource import Resource
+from binds.grafana.client.refined_models import Duration, PostableExtendedRuleNode
 
+from monitor.controller.resource import Resource
 
 # todo хочется как-то разделить связи между объектами и тот самый "локальный стейт"
 """
@@ -25,9 +22,10 @@ condition = q2.refId
 Может быть тогда "локальный стейт" -- это функция, возвращающая из текущего объекта dict ???
 """
 
+
 class RuleGroup(Resource):
     folder_title: str
-    recipient: str = 'grafana'
+    recipient: str = "grafana"
 
     name: str
     interval: Duration

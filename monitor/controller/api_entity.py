@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-from typing import Union, Optional, TypeVar
 from abc import ABC, abstractmethod
+from typing import Union
+
+from pydantic import BaseModel
 
 ID_TYPE = Union[str, int]
 

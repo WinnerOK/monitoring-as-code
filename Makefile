@@ -2,6 +2,10 @@
 SHELL := /usr/bin/env bash
 PYTHON := python
 
+#* Directories with source code
+CODE = monitor tests
+CODE_FMT = monitor tests demo
+
 #* Poetry
 .PHONY: poetry-download
 poetry-download:
@@ -22,3 +26,10 @@ install:
 mypy:
 	poetry run mypy --install-types --non-interactive --config-file pyproject.toml ./
 
+
+.PHONY: format
+format:
+	poetry run pyupgrade --exit-zero-even-if-changed --py39-plus **/*.py
+	poetry run autoflake --recursive --in-place --remove-all-unused-imports --ignore-init-module-imports $(CODE_FMT)
+	poetry run isort --settings-path pyproject.toml $(CODE_FMT)
+	poetry run black --config pyproject.toml $(CODE_FMT)

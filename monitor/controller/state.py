@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from types import TracebackType
-from typing import Optional, Type, Iterable
-
-from pydantic import BaseModel
+from typing import Iterable, Optional, Type
 
 from controller.resource import IdType, Resource, ResourceAction, ResourceOps
+from pydantic import BaseModel
 
 RESOURCE_ID_MAPPING = dict[IdType, IdType]  # local_id: remote_id
 
@@ -29,7 +27,6 @@ class State(ABC):
         """
         Load state information to self._data
         """
-        pass
 
     @abstractmethod
     def _save(self):
@@ -37,7 +34,6 @@ class State(ABC):
         Persist self._data
         Do not consider self._save_stave; It is already handled in self.__exit__
         """
-        pass
 
     def fill_provider_id(self, resources: Iterable[Resource]) -> None:
         for resource in resources:
@@ -71,22 +67,24 @@ class State(ABC):
             if operation in {ResourceOps.DELETE, ResourceOps.IGNORE}:
                 self._data.resources.pop(resource.local_id, None)
             # todo: this resources must always have remote_id set, but better to ensure it at type level
-            elif operation in {ResourceOps.CREATE, ResourceOps.UPDATE, ResourceOps.SKIP}:
+            elif operation in {
+                ResourceOps.CREATE,
+                ResourceOps.UPDATE,
+                ResourceOps.SKIP,
+            }:
                 self._data.resources[resource.local_id] = resource.remote_id
 
     def _lock(self) -> None:
         """
         Lock state to ensure exclusive write access
         """
-        pass
 
     def _unlock(self) -> None:
         """
         Unlock state after all operations
         """
-        pass
 
-    def __enter__(self) -> 'State':
+    def __enter__(self) -> "State":
         """
         Do any needed state initialization
         """

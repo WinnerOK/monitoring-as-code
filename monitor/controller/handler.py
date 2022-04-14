@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Any, Optional
+from typing import Any, Generic, Optional, TypeVar
 
 import requests
 from requests.auth import AuthBase
 
-from monitor.controller.resource import Resource, IdType
+from monitor.controller.resource import IdType, Resource
 
 S = TypeVar("S", bound=Resource)
 

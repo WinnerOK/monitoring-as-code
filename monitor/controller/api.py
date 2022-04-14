@@ -1,8 +1,8 @@
 # Deprecated concept
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic
+from typing import Generic, TypeVar
 
-from monitor.controller.api_entity import ApiEntity, ID_TYPE
+from monitor.controller.api_entity import ID_TYPE, ApiEntity
 
 T = TypeVar("T", bound=ApiEntity)
 
