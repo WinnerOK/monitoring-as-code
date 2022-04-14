@@ -9,6 +9,6 @@ class GrafanaProvider(Provider):
     @property
     def operating_resources(self) -> set[Type[Resource]]:
         return {
-            gf_resources.Folder,
+            Resource[gf_resources.Folder],
         }
 

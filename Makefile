@@ -16,10 +16,9 @@ poetry-remove:
 install:
 	poetry lock -n
 	poetry install -n
-	-poetry run mypy --install-types --non-interactive ./
 
 
 .PHONY: mypy
 mypy:
-	poetry run mypy --config-file pyproject.toml ./
+	poetry run mypy --install-types --non-interactive --config-file pyproject.toml ./
 

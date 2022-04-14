@@ -6,21 +6,21 @@ from requests.auth import AuthBase
 
 from monitor.controller.resource import Resource, IdType
 
-T = TypeVar("T", bound=Resource)
+S = TypeVar("S", bound=Resource)
 
 
-class ResourceHandler(Generic[T], ABC):
+class ResourceHandler(Generic[S], ABC):
     # todo: add readall ???
     @abstractmethod
-    def read(self, resource_id: IdType) -> T:
+    def read(self, resource_id: IdType) -> Optional[S]:
         pass
 
     @abstractmethod
-    def create(self, resource: T) -> T:
+    def create(self, resource: S) -> tuple[S, IdType]:
         pass
 
     @abstractmethod
-    def update(self, resource: T) -> T:
+    def update(self, resource: S) -> S:
         pass
 
     @abstractmethod
@@ -28,12 +28,12 @@ class ResourceHandler(Generic[T], ABC):
         pass
 
 
-class HttpApiResourceHandler(ResourceHandler[T], ABC):
+class HttpApiResourceHandler(ResourceHandler[S], ABC):
     def __init__(
-            self,
-            base_url: str,
-            extra_headers: dict[str, str],
-            auth: Optional[AuthBase] = None,
+        self,
+        base_url: str,
+        extra_headers: dict[str, str],
+        auth: Optional[AuthBase] = None,
     ):
         self._base_url = base_url
 
@@ -43,10 +43,7 @@ class HttpApiResourceHandler(ResourceHandler[T], ABC):
             self.session.auth = auth
 
     def call_api(
-        self,
-        method: str,
-        url: str,
-        **request_kwargs: Any
+        self, method: str, url: str, **request_kwargs: Any
     ) -> requests.Response:
         # todo: add retries, timeout
         return self.session.request(

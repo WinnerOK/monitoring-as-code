@@ -12,14 +12,14 @@ class FolderHandler(HttpApiResourceHandler[Folder]):
         folder = Folder(**response.json())
         return folder
 
-    def create(self, resource: Folder) -> Folder:
+    def create(self, resource: Folder) -> tuple[Folder, str]:
         response = self.call_api(
             method='POST',
             url='/folders',
             json=resource.dict()
         )
         # todo: parse errors
-        return Folder(**response.json())
+        return Folder(**response.json()), response.json()['uid']
 
     def update(self, resource: Folder) -> Folder:
         pass
