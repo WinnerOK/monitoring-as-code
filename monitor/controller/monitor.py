@@ -1,5 +1,6 @@
-from collections import defaultdict
 from typing import Dict, Iterable, List, Type, TypeVar
+
+from collections import defaultdict
 
 from loguru import logger
 
@@ -63,11 +64,6 @@ class Monitor:
 
         try:
             with self._state as state:
-                # todo: Remove once tested
-                # resources_by_provider: dict[Provider[T], Iterable[Resource[T]]] = {
-                #     provider: [Resource(local_object=obj) for obj in objects]
-                #     for provider, objects in objects_by_provider.items()
-                # }
                 resources_by_provider: dict[Provider[T], Iterable[Resource[T]]] = {}
                 for provider, local_objects in objects_by_provider.items():
                     local_resources = [

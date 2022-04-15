@@ -1,7 +1,8 @@
+from typing import Any, Dict, List, Optional
+
 import math
 from datetime import timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional
 
 import durationpy
 from pydantic import BaseModel as pyBase

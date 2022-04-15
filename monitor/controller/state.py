@@ -1,6 +1,7 @@
-from abc import ABC, abstractmethod
 from types import TracebackType
 from typing import Iterable, Optional, Type
+
+from abc import ABC, abstractmethod
 
 from controller.resource import IdType, Resource, ResourceAction, ResourceOps
 from pydantic import BaseModel
@@ -15,6 +16,7 @@ class StateData(BaseModel):
 class State(ABC):
     def __init__(
         self,
+        *,
         save_state: bool,
         persist_untracked: bool,
     ):
@@ -29,7 +31,7 @@ class State(ABC):
         """
 
     @abstractmethod
-    def _save(self):
+    def _save(self) -> None:
         """
         Persist self._data
         Do not consider self._save_stave; It is already handled in self.__exit__

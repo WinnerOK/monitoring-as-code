@@ -24,24 +24,59 @@ isort = "^5.10.1"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.black]
+# https://github.com/psf/black
+target-version = ["py39"]
+line-length = 88
+color = true
+
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | env
+    | venv
+)/
+'''
+
+[tool.isort]
+# https://github.com/timothycrosley/isort/
+py_version = 39
+line_length = 88
+
+known_typing = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
+sections = ["FUTURE", "TYPING", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+include_trailing_comma = true
+profile = "black"
+multi_line_output = 3
+indent = 4
+color_output = true
+
 [tool.mypy]
-# mypy configurations: https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
+# https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
 python_version = 3.9
 pretty = true
 show_traceback = true
 color_output = true
-plugins = ["pydantic.mypy"]
+plugins = [
+  "pydantic.mypy"
+]
 
 allow_redefinition = false
 check_untyped_defs = true
 disallow_any_generics = true
 disallow_incomplete_defs = true
 disallow_untyped_defs = true
-follow_imports = "silent"
 ignore_missing_imports = true
-implicit_reexport = false
+implicit_reexport = true
 no_implicit_optional = true
-no_implicit_reexport = true
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
@@ -49,12 +84,18 @@ strict_equality = true
 strict_optional = true
 warn_no_return = true
 warn_redundant_casts = true
-warn_return_any = true
+warn_return_any = false
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
-[pydantic-mypy]
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[tool.pydantic-mypy]
+# https://pydantic-docs.helpmanual.io/mypy_plugin/#configuring-the-plugin
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true

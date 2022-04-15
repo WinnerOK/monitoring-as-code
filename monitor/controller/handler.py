@@ -1,5 +1,6 @@
-from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, TypeVar
+
+from abc import ABC, abstractmethod
 
 import requests
 from requests.auth import AuthBase

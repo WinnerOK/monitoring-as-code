@@ -1,10 +1,10 @@
-from abc import ABC, abstractmethod
 from typing import Collection, Generic, Iterable, Type, TypeVar
+
+from abc import ABC, abstractmethod
 
 from monitor.controller.resource import Resource, ResourceAction
 
 from .diff_utils import RESOURCE_DIFF
-from .handler import ResourceHandler
 from .obj import MonitoringObject
 
 T = TypeVar("T", bound=MonitoringObject)
@@ -19,11 +19,6 @@ class Provider(ABC, Generic[T]):
     @abstractmethod
     @property
     def operating_objects(self) -> Collection[Type[T]]:
-        pass
-
-    @abstractmethod
-    @property
-    def handlers(self) -> Iterable[ResourceHandler[T]]:
         pass
 
     @abstractmethod
