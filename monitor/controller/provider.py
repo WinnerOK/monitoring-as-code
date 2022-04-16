@@ -2,10 +2,9 @@ from typing import Collection, Generic, Iterable, Type, TypeVar
 
 from abc import ABC, abstractmethod
 
+from monitor.controller.diff_utils import RESOURCE_DIFF
+from monitor.controller.obj import MonitoringObject
 from monitor.controller.resource import Resource, ResourceAction
-
-from .diff_utils import RESOURCE_DIFF
-from .obj import MonitoringObject
 
 T = TypeVar("T", bound=MonitoringObject)
 
@@ -16,8 +15,8 @@ class Provider(ABC, Generic[T]):
     The class exposes types it operates with and responsible for CRUD operations
     """
 
-    @abstractmethod
     @property
+    @abstractmethod
     def operating_objects(self) -> Collection[Type[T]]:
         pass
 

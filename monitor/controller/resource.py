@@ -2,8 +2,9 @@ from typing import Generic, Optional, TypeVar
 
 from enum import Enum, auto
 
-from controller.obj import MonitoringObject
 from pydantic import BaseModel
+
+from monitor.controller.obj import MonitoringObject
 
 IdType = str
 

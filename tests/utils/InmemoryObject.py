@@ -1,9 +1,9 @@
 from abc import ABC
 
-from controller.obj import MonitoringObject
+from monitor.controller.obj import MonitoringObject
 
 
-class InmemoryObject(ABC, MonitoringObject):
+class InmemoryObject(MonitoringObject, ABC):
     name: str
 
     @property

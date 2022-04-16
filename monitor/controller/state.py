@@ -3,8 +3,9 @@ from typing import Iterable, Optional, Type
 
 from abc import ABC, abstractmethod
 
-from controller.resource import IdType, Resource, ResourceAction, ResourceOps
 from pydantic import BaseModel
+
+from monitor.controller.resource import IdType, Resource, ResourceAction, ResourceOps
 
 RESOURCE_ID_MAPPING = dict[IdType, IdType]  # local_id: remote_id
 

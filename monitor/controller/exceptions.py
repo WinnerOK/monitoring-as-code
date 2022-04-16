@@ -1,6 +1,6 @@
-from typing import Iterable, List
+from typing import Iterable
 
-from monitor.controller import Resource
+from monitor.controller.resource import Resource
 
 
 class MonitorException(Exception):
@@ -10,7 +10,7 @@ class MonitorException(Exception):
 
 
 class UnknownObjectHandlerException(MonitorException):
-    def __init__(self, resources: List[Resource]):
+    def __init__(self, resources: list[Resource]):
         message = (
             "No handler is registered for the following object types: {types}".format(
                 types={type(resource) for resource in resources}

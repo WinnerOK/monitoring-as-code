@@ -1,19 +1,19 @@
-from typing import Dict, Iterable, List, Type, TypeVar
+from typing import Dict, Iterable, Type, TypeVar
 
 from collections import defaultdict
 
 from loguru import logger
 
-from .diff_utils import print_diff
-from .exceptions import (
+from monitor.controller.diff_utils import print_diff
+from monitor.controller.exceptions import (
     DuplicatedProviderException,
     UnexpectedResourceStateException,
     UnknownObjectHandlerException,
 )
-from .obj import MonitoringObject
-from .provider import Provider
-from .resource import Resource, ResourceAction, ResourceOps
-from .state import State
+from monitor.controller.obj import MonitoringObject
+from monitor.controller.provider import Provider
+from monitor.controller.resource import Resource, ResourceAction, ResourceOps
+from monitor.controller.state import State
 
 T = TypeVar("T", bound=MonitoringObject)
 RESOURCE_ACTION_MAPPING = dict[Resource[T], ResourceOps]
@@ -22,7 +22,7 @@ RESOURCE_ACTION_MAPPING = dict[Resource[T], ResourceOps]
 class Monitor:
     def __init__(
         self,
-        providers: List[Provider],
+        providers: list[Provider],
         state: State,
     ):
         self._state = state
@@ -42,7 +42,7 @@ class Monitor:
     def _group_objects_by_provider(
         self,
         monitoring_objects: Iterable[MonitoringObject],
-    ) -> Dict[Provider[T], List[T]]:
+    ) -> Dict[Provider[T], list[T]]:
         objects_by_provider = defaultdict(list)
         for monitoring_object in monitoring_objects:
             provider = self._resource_provider_map.get(type(monitoring_object), None)
@@ -55,7 +55,7 @@ class Monitor:
 
     def apply_monitoring_state(
         self,
-        monitoring_objects: Iterable[MonitoringObject],
+        monitoring_objects: list[MonitoringObject],
         dry_run: bool = True,
     ):
         objects_by_provider = self._group_objects_by_provider(monitoring_objects)
@@ -64,6 +64,9 @@ class Monitor:
 
         try:
             with self._state as state:
+                # fixme: из стейта нужно подгружать untracked ресурсы, иначе они теряются
+                # Тк из стейта подгружаются только айдишники, надо уметь разделять ресурсы не только по типу объекта,
+                # но и по айдишнику. Для этого в id всегда должна быть зашита информация о типе ресурса
                 resources_by_provider: dict[Provider[T], Iterable[Resource[T]]] = {}
                 for provider, local_objects in objects_by_provider.items():
                     local_resources = [
