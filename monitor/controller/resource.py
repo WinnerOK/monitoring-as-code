@@ -30,7 +30,8 @@ class ResourceOps(Enum):
 T = TypeVar(
     "T",
     bound=MonitoringObject,
-    covariant=True,  # if A <: B, then Resource[A] <: Resource[B]
+    # fixme Type cannot be covariant, because resource accepts it
+    # covariant=True,  # if A <: B, then Resource[A] <: Resource[B]
 )
 
 

@@ -29,7 +29,7 @@ mypy:
 
 .PHONY: format
 format:
-	poetry run pyupgrade --exit-zero-even-if-changed --py39-plus **/*.py
+	poetry run pyupgrade --exit-zero-even-if-changed --py310-plus **/*.py
 	poetry run autoflake --recursive --in-place --remove-all-unused-imports --ignore-init-module-imports $(CODE_FMT)
 	poetry run isort --settings-path pyproject.toml $(CODE_FMT)
 	poetry run black --config pyproject.toml $(CODE_FMT)

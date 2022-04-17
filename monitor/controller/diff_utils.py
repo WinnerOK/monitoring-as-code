@@ -10,7 +10,7 @@ RESOURCE_DIFF = Iterable[str]
 T = TypeVar("T", bound=MonitoringObject)
 
 
-def print_diff(diff_header: str, calculated_diff: RESOURCE_DIFF):
+def print_diff(diff_header: str, calculated_diff: RESOURCE_DIFF) -> None:
     # todo: add coloring for added, deleted or whatever
     # todo: invalid logging
     logger.info(diff_header + "\n" + "\n".join(calculated_diff))

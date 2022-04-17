@@ -42,7 +42,7 @@ class Provider(ABC, Generic[T]):
     @abstractmethod
     def apply_actions(
         self,
-        resource_actions: Iterable[ResourceAction],
+        resource_actions: Iterable[ResourceAction[T]],
     ) -> None:
         pass
 

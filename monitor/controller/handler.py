@@ -5,9 +5,10 @@ from abc import ABC, abstractmethod
 import requests
 from requests.auth import AuthBase
 
+from monitor.controller.obj import MonitoringObject
 from monitor.controller.resource import IdType, Resource
 
-S = TypeVar("S", bound=Resource)
+S = TypeVar("S", bound=Resource[MonitoringObject])
 
 
 class ResourceHandler(Generic[S], ABC):

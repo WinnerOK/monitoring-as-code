@@ -20,7 +20,7 @@ class Obj(Base, Hashable):
     def __hash__(self) -> int:
         return self.v
 
-    def __lt__(self, other: "Obj"):
+    def __lt__(self, other: "Obj") -> bool:
         if not isinstance(other, Obj):
             return NotImplemented
         return self.v < other.v

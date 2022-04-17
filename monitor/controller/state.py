@@ -1,10 +1,11 @@
 from types import TracebackType
-from typing import Iterable, Optional, Type
+from typing import Iterable, Optional, Type, Any
 
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 
+from controller.obj import MonitoringObject
 from monitor.controller.resource import IdType, Resource, ResourceAction, ResourceOps
 
 RESOURCE_ID_MAPPING = dict[IdType, IdType]  # local_id: remote_id
@@ -38,13 +39,13 @@ class State(ABC):
         Do not consider self._save_stave; It is already handled in self.__exit__
         """
 
-    def fill_provider_id(self, resources: Iterable[Resource]) -> None:
+    def fill_provider_id(self, resources: Iterable[Resource[Any]]) -> None:
         for resource in resources:
             if (local_id := resource.local_id) in self._data.resources:
                 resource.remote_id = self._data.resources[local_id]
 
     def filter_untracked_resources(
-        self, resources: Iterable[Resource]
+        self, resources: Iterable[Resource[Any]]
     ) -> RESOURCE_ID_MAPPING:
         """
         Return list of resources that are in state, but were not passed as parameters
@@ -57,12 +58,12 @@ class State(ABC):
         }
         untracked_storage = {
             local_id: remote_id
-            for local_id, remote_id in self._data.resources.values()
+            for local_id, remote_id in self._data.resources.items()
             if local_id not in tracked_resource_local_ids
         }
         return untracked_storage
 
-    def update_state(self, resource_actions: Iterable[ResourceAction]):
+    def update_state(self, resource_actions: Iterable[ResourceAction[Any]]) -> None:
         for resource_action in resource_actions:
             resource = resource_action.resource
             operation = resource_action.operation
@@ -75,7 +76,7 @@ class State(ABC):
                 ResourceOps.UPDATE,
                 ResourceOps.SKIP,
             }:
-                self._data.resources[resource.local_id] = resource.remote_id
+                self._data.resources[resource.local_id] = resource.remote_id  # type: ignore  # fixme: optional string
 
     def _lock(self) -> None:
         """
@@ -100,7 +101,7 @@ class State(ABC):
         exc_type: Optional[Type[BaseException]],
         exc: Optional[BaseException],
         traceback: Optional[TracebackType],
-    ):
+    ) -> None:
         if self._save_state:
             self._save()
         self._unlock()
