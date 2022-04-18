@@ -1,6 +1,5 @@
-from typing import Any, Generic, Optional, TypeVar
-
 from abc import ABC, abstractmethod
+from typing import Any, Generic, Optional, TypeVar
 
 import requests
 from requests.auth import AuthBase
@@ -10,9 +9,9 @@ from monitor.controller.resource import IdType, Resource
 
 S = TypeVar("S", bound=Resource[MonitoringObject])
 
-
+# fixme: better inject requests.Session
 class ResourceHandler(Generic[S], ABC):
-    # todo: add readall ???
+    # todo: add readall ??? No for now!!!
     @abstractmethod
     def read(self, resource_id: IdType) -> Optional[S]:
         pass

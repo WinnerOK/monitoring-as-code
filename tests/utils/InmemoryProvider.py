@@ -2,52 +2,79 @@ from typing import Collection, Iterable, Type
 
 from monitor.controller.diff_utils import RESOURCE_DIFF, calculate_diff
 from monitor.controller.provider import Provider
-from monitor.controller.resource import IdType, Resource, ResourceAction, ResourceOps
+from monitor.controller.provider import T
+from monitor.controller.resource import IdType
+from monitor.controller.resource import (
+    ObsoleteResource,
+    SyncedResource,
+    LocalResource,
+    MappedResource,
+)
 from tests.utils.InmemoryObject import InmemoryObject
 
 
 class InmemoryProvider(Provider[InmemoryObject]):
-    def __init__(self, remote_objects: Iterable[InmemoryObject]):
-        self.remote_state: dict[IdType, InmemoryObject] = {
-            self.generate_remote_id(obj.local_id): obj for obj in remote_objects
-        }
-
     @staticmethod
     def generate_remote_id(local_id: str) -> str:
         return "remote_" + local_id
+
+    def __init__(self, remote_objects: Iterable[InmemoryObject]):
+        self.remote_state: dict[IdType, InmemoryObject] = {
+            self.generate_remote_id(LocalResource(local_object=obj).local_id): obj
+            for obj in remote_objects
+        }
 
     @property
     def operating_objects(self) -> Collection[Type[InmemoryObject]]:
         return set(InmemoryObject.__subclasses__())
 
     def sync_resources(
-        self, local_resources: Iterable[Resource[InmemoryObject]]
-    ) -> Iterable[Resource[InmemoryObject]]:
-        for resource in local_resources:
-            if resource.remote_id is not None:
-                resource.remote_object = self.remote_state.get(resource.remote_id, None)
-        return local_resources
+        self, mapped_resources: Iterable[MappedResource[T]]
+    ) -> Iterable[SyncedResource[T] | ObsoleteResource[T]]:
+        rv = []
+        for resource in mapped_resources:
+            remote_obj = self.remote_state.get(resource.remote_id)
 
-    def diff(self, resource: Resource[InmemoryObject]) -> RESOURCE_DIFF:
+            if remote_obj:
+                rv.append(
+                    SyncedResource(
+                        local_object=resource.local_object,
+                        remote_id=resource.remote_id,
+                        remote_object=remote_obj,
+                    )
+                )
+            else:
+                rv.append(
+                    ObsoleteResource(
+                        local_id=resource.local_id,
+                        remote_id=resource.remote_id,
+                    )
+                )
+        return rv
+
+    def diff(self, resource: SyncedResource[T]) -> RESOURCE_DIFF:
         return calculate_diff(resource.remote_object, resource.local_object)
 
-    def apply_actions(self, resource_actions: Iterable[ResourceAction]) -> None:
-        for resource_action in resource_actions:
-            resource = resource_action.resource
-            operation = resource_action.operation
+    def apply_actions(
+        self,
+        resources: Iterable[ObsoleteResource[T] | SyncedResource[T] | LocalResource[T]],
+    ) -> list[SyncedResource[T]]:
+        synced = []
+        for resource in resources:
+            if isinstance(resource, ObsoleteResource):
+                self.remote_state.pop(resource.remote_id)  # probably make default None
+            elif isinstance(resource, SyncedResource):
+                self.remote_state[resource.remote_id] = resource.local_object
+                synced.append(resource)
+            elif isinstance(resource, LocalResource):
+                remote_id = self.generate_remote_id(resource.local_id)
 
-            if operation == ResourceOps.CREATE:
-                resource.remote_id = self.generate_remote_id(resource.local_id)
-
-            if operation in {ResourceOps.CREATE, ResourceOps.UPDATE}:
-                assert resource.remote_id is not None
-                resource.remote_object = resource.local_object.copy(deep=True)
-
-                self.remote_state[resource.remote_id] = resource.remote_object
-
-            elif operation == ResourceOps.DELETE:
-                self.remote_state.pop(resource.remote_id)
-            elif operation in {ResourceOps.SKIP, ResourceOps.IGNORE}:
-                pass
-            else:
-                raise RuntimeError(f"Unhandled operation: {operation}")
+                self.remote_state[remote_id] = resource.local_object
+                synced.append(
+                    SyncedResource(
+                        local_object=resource.local_object,
+                        remote_id=remote_id,
+                        remote_object=resource.local_object,
+                    )
+                )
+        return synced

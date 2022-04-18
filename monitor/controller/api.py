@@ -1,7 +1,6 @@
-# Deprecated concept
-from typing import Generic, TypeVar
-
+# fixme Deprecated concept
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
 from monitor.controller.api_entity import ID_TYPE, ApiEntity
 

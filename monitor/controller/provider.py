@@ -1,10 +1,14 @@
-from typing import Collection, Generic, Iterable, Type, TypeVar
-
 from abc import ABC, abstractmethod
+from typing import Collection, Generic, Iterable, Type, TypeVar
 
 from monitor.controller.diff_utils import RESOURCE_DIFF
 from monitor.controller.obj import MonitoringObject
-from monitor.controller.resource import Resource, ResourceAction
+from monitor.controller.resource import (
+    SyncedResource,
+    MappedResource,
+    ObsoleteResource,
+    LocalResource,
+)
 
 T = TypeVar("T", bound=MonitoringObject)
 
@@ -23,16 +27,14 @@ class Provider(ABC, Generic[T]):
     @abstractmethod
     def sync_resources(
         self,
-        local_resources: Iterable[Resource[T]],
-    ) -> Iterable[Resource[T]]:
+        mapped_resources: Iterable[MappedResource[T]],
+    ) -> Iterable[SyncedResource[T] | ObsoleteResource[T]]:
         """
         Get remote state for given resources, if any
-        :param local_resources:
-        :return:
         """
 
     @abstractmethod
-    def diff(self, resource: Resource[T]) -> RESOURCE_DIFF:
+    def diff(self, resource: SyncedResource[T]) -> RESOURCE_DIFF:
         """
         Diff in form of classic diff
 
@@ -42,8 +44,9 @@ class Provider(ABC, Generic[T]):
     @abstractmethod
     def apply_actions(
         self,
-        resource_actions: Iterable[ResourceAction[T]],
-    ) -> None:
+        # todo: может быть принимать сюда 3 списка: to_create, to_delete, to_update ???
+        resources: Iterable[ObsoleteResource[T] | SyncedResource[T] | LocalResource[T]],
+    ) -> list[SyncedResource[T]]:
         pass
 
     def dispose(self) -> None:

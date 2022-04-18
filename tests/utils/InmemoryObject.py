@@ -8,7 +8,7 @@ class InmemoryObject(MonitoringObject, ABC):
 
     @property
     def local_id(self) -> str:
-        return f"{type(self).__name__}.{self.name}"
+        return f"{self.name}"
 
 
 class PrimitiveInmemoryObject(InmemoryObject):

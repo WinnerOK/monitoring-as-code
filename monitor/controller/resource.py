@@ -1,6 +1,6 @@
-from typing import Generic, Optional, TypeVar
-
+from abc import ABC
 from enum import Enum, auto
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
@@ -30,19 +30,43 @@ class ResourceOps(Enum):
 T = TypeVar(
     "T",
     bound=MonitoringObject,
-    # fixme Type cannot be covariant, because resource accepts it
-    # covariant=True,  # if A <: B, then Resource[A] <: Resource[B]
 )
 
 
-class Resource(Generic[T], BaseModel):
+def generate_resource_local_id(obj: MonitoringObject) -> str:
+    return f"{type(obj).__name__}.{obj.local_id}"
+
+
+class Resource(BaseModel, Generic[T], ABC):
+    pass
+
+
+class LocalResource(Resource[T]):
     local_object: T
-    remote_id: Optional[IdType] = None
-    remote_object: Optional[T] = None
 
     @property
     def local_id(self) -> IdType:
-        return self.local_object.local_id
+        return generate_resource_local_id(self.local_object)
+
+
+class MappedResource(LocalResource[T]):
+    remote_id: IdType
+
+    @classmethod
+    def from_local(cls, local_resource: LocalResource[T], remote_id: IdType):
+        return cls(
+            local_object=local_resource.local_object,
+            remote_id=remote_id,
+        )
+
+
+class SyncedResource(MappedResource[T]):
+    remote_object: T
+
+
+class ObsoleteResource(Resource[T]):
+    local_id: IdType
+    remote_id: IdType
 
 
 class ResourceAction(Generic[T], BaseModel):

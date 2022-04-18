@@ -1,7 +1,8 @@
 from typing import Iterable
 
-from controller.obj import MonitoringObject
+from monitor.controller.obj import MonitoringObject
 from monitor.controller.resource import Resource
+from monitor.controller.utils import get_resource_object_type_name
 
 
 class MonitorException(Exception):
@@ -10,14 +11,14 @@ class MonitorException(Exception):
         super(MonitorException, self).__init__(self.message)
 
 
-class UnknownObjectHandlerException(MonitorException):
-    def __init__(self, objects: list[MonitoringObject]) -> None:
+class UnknownResourceHandlerException(MonitorException):
+    def __init__(self, resources: list[Resource]) -> None:
         message = (
             "No handler is registered for the following object types: {types}".format(
-                types={type(obj) for obj in objects}
+                types={get_resource_object_type_name(r) for r in resources}
             )
         )
-        super(UnknownObjectHandlerException, self).__init__(message)
+        super().__init__(message)
 
 
 class DuplicatedProviderException(MonitorException):

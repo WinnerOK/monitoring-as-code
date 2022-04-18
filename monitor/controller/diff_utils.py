@@ -1,6 +1,5 @@
-from typing import Iterable, Optional, TypeVar
-
 from difflib import unified_diff
+from typing import Iterable, Optional, TypeVar
 
 from loguru import logger
 

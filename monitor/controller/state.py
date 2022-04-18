@@ -1,12 +1,17 @@
-from types import TracebackType
-from typing import Iterable, Optional, Type, Any
-
 from abc import ABC, abstractmethod
+from types import TracebackType
+from typing import Iterable, Optional, Type
 
 from pydantic import BaseModel
 
-from controller.obj import MonitoringObject
-from monitor.controller.resource import IdType, Resource, ResourceAction, ResourceOps
+from monitor.controller.obj import MonitoringObject
+from monitor.controller.resource import (
+    IdType,
+    LocalResource,
+    MappedResource,
+    ObsoleteResource,
+    SyncedResource,
+)
 
 RESOURCE_ID_MAPPING = dict[IdType, IdType]  # local_id: remote_id
 
@@ -39,44 +44,57 @@ class State(ABC):
         Do not consider self._save_stave; It is already handled in self.__exit__
         """
 
-    def fill_provider_id(self, resources: Iterable[Resource[Any]]) -> None:
-        for resource in resources:
-            if (local_id := resource.local_id) in self._data.resources:
-                resource.remote_id = self._data.resources[local_id]
+    def fill_provider_id(
+        self,
+        local_resources: Iterable[LocalResource[MonitoringObject]],
+    ) -> list[LocalResource[MonitoringObject] | MappedResource[MonitoringObject]]:
+        rv = []
+        for local_resource in local_resources:
+            if (local_id := local_resource.local_id) in self._data.resources:
+                rv.append(
+                    MappedResource.from_local(
+                        local_resource,
+                        self._data.resources[local_id],
+                    )
+                )
+            else:
+                rv.append(local_resource)
+        return rv
 
-    def filter_untracked_resources(
-        self, resources: Iterable[Resource[Any]]
-    ) -> RESOURCE_ID_MAPPING:
+    def get_untracked_resources(
+        self, resources: Iterable[LocalResource[MonitoringObject]]
+    ) -> list[ObsoleteResource[MonitoringObject]]:
         """
         Return list of resources that are in state, but were not passed as parameters
         """
-        if not self._persist_untracked:
-            return {}
+        if self._persist_untracked:
+            return []
 
         tracked_resource_local_ids = {
             tracked_resource.local_id for tracked_resource in resources
         }
-        untracked_storage = {
-            local_id: remote_id
+        untracked_resources = [
+            ObsoleteResource(
+                local_id=local_id,
+                remote_id=remote_id,
+            )
             for local_id, remote_id in self._data.resources.items()
             if local_id not in tracked_resource_local_ids
-        }
-        return untracked_storage
+        ]
+        return untracked_resources
 
-    def update_state(self, resource_actions: Iterable[ResourceAction[Any]]) -> None:
-        for resource_action in resource_actions:
-            resource = resource_action.resource
-            operation = resource_action.operation
-
-            if operation in {ResourceOps.DELETE, ResourceOps.IGNORE}:
-                self._data.resources.pop(resource.local_id, None)
-            # todo: this resources must always have remote_id set, but better to ensure it at type level
-            elif operation in {
-                ResourceOps.CREATE,
-                ResourceOps.UPDATE,
-                ResourceOps.SKIP,
-            }:
-                self._data.resources[resource.local_id] = resource.remote_id  # type: ignore  # fixme: optional string
+    def update_state(
+        self,
+        resources: Iterable[
+            SyncedResource[MonitoringObject] | ObsoleteResource[MonitoringObject]
+        ],
+    ) -> None:
+        for resource in resources:
+            match resource:
+                case ObsoleteResource(local_id=local_id):
+                    self._data.resources.pop(local_id, None)
+                case SyncedResource(local_id=local_id, remote_id=remote_id):
+                    self._data.resources[local_id] = remote_id
 
     def _lock(self) -> None:
         """
