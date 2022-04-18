@@ -142,7 +142,7 @@ class Monitor:
         self,
         provider: Provider[T],
         provider_resources: Iterable[Resource[T]],
-    ):
+    ) -> tuple[list[ObsoleteResource[T]], list[SyncedResource[T] | LocalResource[T]], list[SyncedResource[T]]]:
         need_removal: list[ObsoleteResource[T]] = []
         need_update: list[SyncedResource[T] | LocalResource[T]] = []
         skip_update: list[SyncedResource[T]] = []

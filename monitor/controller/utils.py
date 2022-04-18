@@ -1,7 +1,8 @@
+from .obj import MonitoringObject
 from .resource import Resource, LocalResource, ObsoleteResource
 
 
-def get_resource_object_type_name(r: Resource) -> str:
+def get_resource_object_type_name(r: LocalResource[MonitoringObject] | ObsoleteResource[MonitoringObject]) -> str:
     match r:
         case LocalResource(local_object=obj):
             return type(obj).__name__

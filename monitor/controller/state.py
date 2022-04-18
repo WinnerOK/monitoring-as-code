@@ -48,7 +48,7 @@ class State(ABC):
         self,
         local_resources: Iterable[LocalResource[MonitoringObject]],
     ) -> list[LocalResource[MonitoringObject] | MappedResource[MonitoringObject]]:
-        rv = []
+        rv: list[LocalResource[MonitoringObject] | MappedResource[MonitoringObject]] = []
         for local_resource in local_resources:
             if (local_id := local_resource.local_id) in self._data.resources:
                 rv.append(
@@ -73,7 +73,7 @@ class State(ABC):
         tracked_resource_local_ids = {
             tracked_resource.local_id for tracked_resource in resources
         }
-        untracked_resources = [
+        untracked_resources: list[ObsoleteResource[MonitoringObject]] = [
             ObsoleteResource(
                 local_id=local_id,
                 remote_id=remote_id,
