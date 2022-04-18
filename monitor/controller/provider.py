@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Collection, Generic, Iterable, Type, TypeVar
 
-from monitor.controller.diff_utils import RESOURCE_DIFF
-from monitor.controller.obj import MonitoringObject
-from monitor.controller.resource import (
+from .diff_utils import RESOURCE_DIFF
+from .obj import MonitoringObject
+from .resource import (
     SyncedResource,
     MappedResource,
     ObsoleteResource,

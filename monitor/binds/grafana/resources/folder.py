@@ -1,4 +1,4 @@
-from monitor.controller.resource import Resource
+from controller.resource import Resource
 
 
 class Folder(Resource):

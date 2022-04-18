@@ -1,8 +1,8 @@
 from typing import Iterable
 
-from monitor.controller.obj import MonitoringObject
-from monitor.controller.resource import Resource
-from monitor.controller.utils import get_resource_object_type_name
+from .obj import MonitoringObject
+from .resource import Resource
+from .utils import get_resource_object_type_name
 
 
 class MonitorException(Exception):

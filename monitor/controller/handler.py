@@ -4,8 +4,8 @@ from typing import Any, Generic, Optional, TypeVar
 import requests
 from requests.auth import AuthBase
 
-from monitor.controller.obj import MonitoringObject
-from monitor.controller.resource import IdType, Resource
+from .obj import MonitoringObject
+from .resource import IdType, Resource
 
 S = TypeVar("S", bound=Resource[MonitoringObject])
 

@@ -5,11 +5,10 @@ from pydantic import BaseModel
 
 from monitor.controller.obj import MonitoringObject
 
-T = TypeVar('T', bound=MonitoringObject)
+T = TypeVar("T", bound=MonitoringObject)
 
 
 class SomeFoo(MonitoringObject):
-
     @property
     def local_id(self) -> str:
         return "123"

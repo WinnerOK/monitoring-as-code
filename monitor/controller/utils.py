@@ -1,4 +1,4 @@
-from monitor.controller.resource import Resource, LocalResource, ObsoleteResource
+from .resource import Resource, LocalResource, ObsoleteResource
 
 
 def get_resource_object_type_name(r: Resource) -> str:

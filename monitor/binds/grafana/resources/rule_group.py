@@ -2,7 +2,7 @@ from typing import List
 
 from binds.grafana.client.refined_models import Duration, PostableExtendedRuleNode
 
-from monitor.controller.resource import Resource
+from controller.resource import Resource
 
 # todo хочется как-то разделить связи между объектами и тот самый "локальный стейт"
 """

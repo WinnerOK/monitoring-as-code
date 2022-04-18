@@ -1,8 +1,8 @@
 from typing import Type
 
 from monitor.binds.grafana import resources as gf_resources
-from monitor.controller.provider import Provider
-from monitor.controller.resource import Resource
+from controller.provider import Provider
+from controller.resource import Resource
 
 
 class GrafanaProvider(Provider):

@@ -4,8 +4,8 @@ from typing import Iterable, Optional, Type
 
 from pydantic import BaseModel
 
-from monitor.controller.obj import MonitoringObject
-from monitor.controller.resource import (
+from .obj import MonitoringObject
+from .resource import (
     IdType,
     LocalResource,
     MappedResource,

@@ -3,14 +3,14 @@ from typing import Dict, Iterable, Type, TypeVar, cast
 
 from loguru import logger
 
-from monitor.controller.diff_utils import print_diff, calculate_diff
-from monitor.controller.exceptions import (
+from .diff_utils import print_diff, calculate_diff
+from .exceptions import (
     DuplicatedProviderException,
     UnknownResourceHandlerException,
 )
-from monitor.controller.obj import MonitoringObject
-from monitor.controller.provider import Provider
-from monitor.controller.resource import (
+from .obj import MonitoringObject
+from .provider import Provider
+from .resource import (
     Resource,
     ResourceOps,
     LocalResource,
@@ -18,7 +18,7 @@ from monitor.controller.resource import (
     MappedResource,
     SyncedResource,
 )
-from monitor.controller.state import State
+from .state import State
 
 T = TypeVar("T", bound=MonitoringObject)
 RESOURCE_ACTION_MAPPING = dict[Resource[T], ResourceOps]

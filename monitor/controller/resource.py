@@ -4,7 +4,7 @@ from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 
-from monitor.controller.obj import MonitoringObject
+from .obj import MonitoringObject
 
 IdType = str
 

@@ -3,7 +3,7 @@ from typing import Iterable, Optional, TypeVar
 
 from loguru import logger
 
-from monitor.controller.obj import MonitoringObject
+from .obj import MonitoringObject
 
 RESOURCE_DIFF = Iterable[str]
 T = TypeVar("T", bound=MonitoringObject)

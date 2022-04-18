@@ -1,5 +1,5 @@
 from monitor.binds.grafana.resources import Folder
-from monitor.controller.handler import HttpApiResourceHandler
+from controller.handler import HttpApiResourceHandler
 
 
 class FolderHandler(HttpApiResourceHandler[Folder]):
