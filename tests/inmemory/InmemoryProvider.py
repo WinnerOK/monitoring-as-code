@@ -10,7 +10,7 @@ from monitor.controller.resource import (
     LocalResource,
     MappedResource,
 )
-from tests.utils.InmemoryObject import InmemoryObject
+from tests.inmemory.InmemoryObject import InmemoryObject
 
 
 class InmemoryProvider(Provider[InmemoryObject]):
