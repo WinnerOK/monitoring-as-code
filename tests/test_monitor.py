@@ -1,4 +1,5 @@
 from abc import ABC
+from copy import deepcopy
 
 import pytest
 
@@ -11,11 +12,18 @@ from tests.utils.InmemoryState import InmemoryState
 
 
 class AbstractTest(ABC):
-    def initial_state_mapping(self) -> RESOURCE_ID_MAPPING:
-        return {}
+    def initial_state_objects(self) -> list[InmemoryObject]:
+        return []
 
     def initial_remote_objects(self) -> list[InmemoryObject]:
         return []
+
+    def initial_state_mapping(self) -> RESOURCE_ID_MAPPING:
+        mapping = {}
+        for obj in self.initial_state_objects():
+            local_id = generate_resource_local_id(obj)
+            mapping[local_id] = InmemoryProvider.generate_remote_id(local_id)
+        return mapping
 
     @pytest.fixture(name="inmemory_state")
     def inmemory_state_fixture(self):
@@ -35,8 +43,8 @@ class AbstractTest(ABC):
 
 
 class TestCreateNewObject(AbstractTest):
-    def test_create(self, monitor, inmemory_provider, inmemory_state):
-        obj = PrimitiveInmemoryObject(name="foo")
+    def test_run(self, monitor, inmemory_provider, inmemory_state):
+        obj = PrimitiveInmemoryObject(name="foo", key="primitive")
 
         monitor.apply_monitoring_state(monitoring_objects=[obj], dry_run=False)
 
@@ -51,19 +59,56 @@ class TestCreateNewObject(AbstractTest):
 
 class TestDeleteObsoleteObject(AbstractTest):
 
-    old_obj = PrimitiveInmemoryObject(name="foo")
+    obj = PrimitiveInmemoryObject(name="foo", key="primitive")
 
     def initial_remote_objects(self) -> list[InmemoryObject]:
-        return [self.old_obj]
+        return [self.obj.copy(deep=True)]
 
-    def initial_state_mapping(self) -> RESOURCE_ID_MAPPING:
-        local_resource_id = generate_resource_local_id(self.old_obj)
-        return {
-            local_resource_id: InmemoryProvider.generate_remote_id(local_resource_id)
-        }
+    def initial_state_objects(self) -> list[InmemoryObject]:
+        return [self.obj.copy(deep=True)]
 
-    def test_delete(self, monitor, inmemory_provider, inmemory_state):
+    def test_run(self, monitor, inmemory_provider, inmemory_state):
         monitor.apply_monitoring_state(monitoring_objects=[], dry_run=False)
 
         assert len(inmemory_provider.remote_state) == 0
         assert len(inmemory_state.internal_state.resources) == 0
+
+
+class TestPersistUnchangedObject(TestDeleteObsoleteObject):
+
+    def test_run(self, monitor, inmemory_provider, inmemory_state):
+        initial_state = inmemory_state.internal_state.copy(deep=True)
+        initial_remote = deepcopy(inmemory_provider.remote_state)
+
+        monitor.apply_monitoring_state(
+            monitoring_objects=[self.obj.copy(deep=True)],
+            dry_run=False,
+        )
+
+        assert inmemory_provider.remote_state == initial_remote
+        assert inmemory_state.internal_state == initial_state
+
+
+class TestUpdatePrimitiveObject(AbstractTest):
+    obj = PrimitiveInmemoryObject(name="foo", key="primitive")
+
+    def initial_state_objects(self) -> list[InmemoryObject]:
+        return [self.obj.copy(deep=True)]
+
+    def initial_remote_objects(self) -> list[InmemoryObject]:
+        remote_obj = self.obj.copy(deep=True)
+        remote_obj.name = 'bar'
+        return [remote_obj]
+
+    def test_run(self, monitor, inmemory_provider, inmemory_state):
+        initial_state = inmemory_state.internal_state.copy(deep=True)
+
+        monitor.apply_monitoring_state(
+            monitoring_objects=[self.obj.copy(deep=True)],
+            dry_run=False
+        )
+
+        assert inmemory_state.internal_state == initial_state
+
+        remote_id = tuple(initial_state.resources.values())[0]
+        assert inmemory_provider.remote_state[remote_id] == self.obj

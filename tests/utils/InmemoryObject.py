@@ -4,15 +4,15 @@ from monitor.controller.obj import MonitoringObject
 
 
 class InmemoryObject(MonitoringObject, ABC):
-    name: str
+    key: str
 
     @property
     def local_id(self) -> str:
-        return f"{self.name}"
+        return f"{self.key}"
 
 
 class PrimitiveInmemoryObject(InmemoryObject):
-    pass
+    name: str
 
 
 class NestedPrimitiveInmemoryObject(InmemoryObject):
