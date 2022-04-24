@@ -75,7 +75,6 @@ class TestDeleteObsoleteObject(AbstractTest):
 
 
 class TestPersistUnchangedObject(TestDeleteObsoleteObject):
-
     def test_run(self, monitor, inmemory_provider, inmemory_state):
         initial_state = inmemory_state.internal_state.copy(deep=True)
         initial_remote = deepcopy(inmemory_provider.remote_state)
@@ -97,15 +96,14 @@ class TestUpdatePrimitiveObject(AbstractTest):
 
     def initial_remote_objects(self) -> list[InmemoryObject]:
         remote_obj = self.obj.copy(deep=True)
-        remote_obj.name = 'bar'
+        remote_obj.name = "bar"
         return [remote_obj]
 
     def test_run(self, monitor, inmemory_provider, inmemory_state):
         initial_state = inmemory_state.internal_state.copy(deep=True)
 
         monitor.apply_monitoring_state(
-            monitoring_objects=[self.obj.copy(deep=True)],
-            dry_run=False
+            monitoring_objects=[self.obj.copy(deep=True)], dry_run=False
         )
 
         assert inmemory_state.internal_state == initial_state
