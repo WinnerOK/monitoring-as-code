@@ -20,4 +20,4 @@ class NestedPrimitiveInmemoryObject(InmemoryObject):
 
 
 class NestedComposeInmemoryObject(InmemoryObject):
-    str_list: list[PrimitiveInmemoryObject]
+    obj_list: list[PrimitiveInmemoryObject]
