@@ -44,8 +44,9 @@ class Provider(ABC, Generic[T]):
     @abstractmethod
     def apply_actions(
         self,
-        # todo: может быть принимать сюда 3 списка: to_create, to_delete, to_update ???
-        resources: Iterable[ObsoleteResource[T] | SyncedResource[T] | LocalResource[T]],
+        to_create: Iterable[LocalResource[T]],
+        to_update: Iterable[SyncedResource[T]],
+        to_remove: Iterable[ObsoleteResource[T]],
     ) -> list[SyncedResource[T]]:
         pass
 

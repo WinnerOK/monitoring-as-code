@@ -53,7 +53,9 @@ class MappedResource(LocalResource[T]):
     remote_id: IdType
 
     @classmethod
-    def from_local(cls, local_resource: LocalResource[T], remote_id: IdType) -> "MappedResource[T]":
+    def from_local(
+        cls, local_resource: LocalResource[T], remote_id: IdType
+    ) -> "MappedResource[T]":
         return cls(
             local_object=local_resource.local_object,
             remote_id=remote_id,

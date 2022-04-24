@@ -57,24 +57,31 @@ class InmemoryProvider(Provider[InmemoryObject]):
 
     def apply_actions(
         self,
-        resources: Iterable[ObsoleteResource[T] | SyncedResource[T] | LocalResource[T]],
+        to_create: Iterable[LocalResource[T]],
+        to_update: Iterable[SyncedResource[T]],
+        to_remove: Iterable[ObsoleteResource[T]],
     ) -> list[SyncedResource[T]]:
         synced = []
-        for resource in resources:
-            if isinstance(resource, ObsoleteResource):
-                self.remote_state.pop(resource.remote_id)  # probably make default None
-            elif isinstance(resource, SyncedResource):
-                self.remote_state[resource.remote_id] = resource.local_object
-                synced.append(resource)
-            elif isinstance(resource, LocalResource):
-                remote_id = self.generate_remote_id(resource.local_id)
 
-                self.remote_state[remote_id] = resource.local_object
-                synced.append(
-                    SyncedResource(
-                        local_object=resource.local_object,
-                        remote_id=remote_id,
-                        remote_object=resource.local_object,
-                    )
+        for obsolete_resource in to_remove:
+            self.remote_state.pop(
+                obsolete_resource.remote_id
+            )  # probably make default None
+
+        for synced_resource in to_update:
+            self.remote_state[synced_resource.remote_id] = synced_resource.local_object
+            synced.append(synced_resource)
+
+        for local_resource in to_create:
+            remote_id = self.generate_remote_id(local_resource.local_id)
+
+            self.remote_state[remote_id] = local_resource.local_object
+            synced.append(
+                SyncedResource(
+                    local_object=local_resource.local_object,
+                    remote_id=remote_id,
+                    remote_object=local_resource.local_object,
                 )
+            )
+
         return synced

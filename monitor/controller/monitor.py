@@ -61,7 +61,7 @@ class Monitor:
 
         for resource in resources:
             # todo: check if mypy finds pattern matching exhaustive
-            # Since Resource class is ABC, this two cases cover everythinb
+            # Since Resource class is ABC, this two cases cover everything
             match resource:
                 case LocalResource(local_object=local_obj):
                     provider = self._resource_provider_map.get(type(local_obj), None)
@@ -85,22 +85,20 @@ class Monitor:
         dry_run: bool = True,
     ) -> None:
 
-        local_resources: list[LocalResource[MonitoringObject]] = [
+        operating_resources: list[LocalResource[MonitoringObject]] = [
             LocalResource(local_object=local_obj) for local_obj in monitoring_objects
         ]
 
         try:
             with self._state as state:
-                operating_resources: list[
-                    Resource[MonitoringObject]
-                ] = state.fill_provider_id(local_resources)
-
-                operating_resources.extend(
-                    state.get_untracked_resources(local_resources)
-                )
-
-                grouped_resources = self._group_resources_by_provider(
+                local_resources, mapped_resources = state.fill_provider_id(
                     operating_resources
+                )
+                untracked_resources = state.get_untracked_resources(operating_resources)
+
+                # fixme: научиться группировать ресурсы по разным спискам
+                grouped_resources = self._group_resources_by_provider(
+                    local_resources + mapped_resources + untracked_resources
                 )
 
                 provider: Provider[T]
@@ -124,14 +122,18 @@ class Monitor:
                     (
                         need_removal,
                         need_update,
+                        need_create,
                         skip_update,
                     ) = self._print_diff_split_resources(provider, processed_resources)
                     if not dry_run:
-                        updated_resources = provider.apply_actions(
-                            need_update + need_removal
+                        synced_resources = provider.apply_actions(
+                            to_create=need_create,
+                            to_update=need_update,
+                            to_remove=need_removal,
                         )
                         state.update_state(
-                            updated_resources + skip_update + need_removal
+                            synced_resources=synced_resources + skip_update,
+                            removed_resources=need_removal,
                         )
 
         finally:
@@ -142,9 +144,15 @@ class Monitor:
         self,
         provider: Provider[T],
         provider_resources: Iterable[Resource[T]],
-    ) -> tuple[list[ObsoleteResource[T]], list[SyncedResource[T] | LocalResource[T]], list[SyncedResource[T]]]:
+    ) -> tuple[
+        list[ObsoleteResource[T]],
+        list[SyncedResource[T]],
+        list[LocalResource[T]],
+        list[SyncedResource[T]],
+    ]:
         need_removal: list[ObsoleteResource[T]] = []
-        need_update: list[SyncedResource[T] | LocalResource[T]] = []
+        need_update: list[SyncedResource[T]] = []
+        need_create: list[LocalResource[T]] = []
         skip_update: list[SyncedResource[T]] = []
 
         for resource in provider_resources:
@@ -165,6 +173,6 @@ class Monitor:
                         skip_update.append(synced_res)
                 case LocalResource(local_object=obj):
                     print_diff(diff_header, calculate_diff(None, obj))
-                    need_update.append(cast(LocalResource[T], resource))
+                    need_create.append(cast(LocalResource[T], resource))
 
-        return need_removal, need_update, skip_update
+        return need_removal, need_update, need_create, skip_update

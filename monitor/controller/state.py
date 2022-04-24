@@ -47,19 +47,24 @@ class State(ABC):
     def fill_provider_id(
         self,
         local_resources: Iterable[LocalResource[MonitoringObject]],
-    ) -> list[LocalResource[MonitoringObject] | MappedResource[MonitoringObject]]:
-        rv: list[LocalResource[MonitoringObject] | MappedResource[MonitoringObject]] = []
+    ) -> tuple[
+        list[LocalResource[MonitoringObject]], list[MappedResource[MonitoringObject]]
+    ]:
+
+        remains_local: list[LocalResource[MonitoringObject]] = []
+        mapped_resources: list[MappedResource[MonitoringObject]] = []
+
         for local_resource in local_resources:
             if (local_id := local_resource.local_id) in self._data.resources:
-                rv.append(
+                mapped_resources.append(
                     MappedResource.from_local(
                         local_resource,
                         self._data.resources[local_id],
                     )
                 )
             else:
-                rv.append(local_resource)
-        return rv
+                remains_local.append(local_resource)
+        return remains_local, mapped_resources
 
     def get_untracked_resources(
         self, resources: Iterable[LocalResource[MonitoringObject]]
@@ -85,16 +90,14 @@ class State(ABC):
 
     def update_state(
         self,
-        resources: Iterable[
-            SyncedResource[MonitoringObject] | ObsoleteResource[MonitoringObject]
-        ],
+        synced_resources: Iterable[SyncedResource[MonitoringObject]],
+        removed_resources: Iterable[ObsoleteResource[MonitoringObject]],
     ) -> None:
-        for resource in resources:
-            match resource:
-                case ObsoleteResource(local_id=local_id):
-                    self._data.resources.pop(local_id, None)
-                case SyncedResource(local_id=local_id, remote_id=remote_id):
-                    self._data.resources[local_id] = remote_id
+        for resource in synced_resources:
+            self._data.resources[resource.local_id] = resource.remote_id
+
+        for resource in removed_resources:
+            self._data.resources.pop(resource.local_id, None)
 
     def _lock(self) -> None:
         """
