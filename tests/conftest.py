@@ -1,6 +1,6 @@
 import pytest
-from loguru import logger
 from _pytest.logging import LogCaptureFixture
+from loguru import logger
 
 
 @pytest.fixture

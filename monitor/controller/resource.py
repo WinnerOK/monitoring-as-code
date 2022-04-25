@@ -1,6 +1,7 @@
+from typing import Generic, TypeVar
+
 from abc import ABC
 from enum import Enum, auto
-from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 

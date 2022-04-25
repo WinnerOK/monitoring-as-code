@@ -1,54 +1,45 @@
-from abc import ABC, abstractmethod
-from typing import Any, Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
-import requests
-from requests.auth import AuthBase
+from abc import ABC, abstractmethod
+
+from requests import Session
 
 from .obj import MonitoringObject
-from .resource import IdType, Resource
+from .resource import LocalResource, MappedResource, ObsoleteResource, SyncedResource
 
-S = TypeVar("S", bound=Resource[MonitoringObject])
+T = TypeVar("T", bound=MonitoringObject)
 
-# fixme: better inject requests.Session
-class ResourceHandler(Generic[S], ABC):
-    # todo: add readall ??? No for now!!!
+
+class ResourceHandler(Generic[T], ABC):
     @abstractmethod
-    def read(self, resource_id: IdType) -> Optional[S]:
-        pass
-
-    @abstractmethod
-    def create(self, resource: S) -> tuple[S, IdType]:
-        pass
-
-    @abstractmethod
-    def update(self, resource: S) -> S:
-        pass
-
-    @abstractmethod
-    def delete(self, resource_id: IdType) -> None:
-        pass
-
-
-class HttpApiResourceHandler(ResourceHandler[S], ABC):
-    def __init__(
+    def read(
         self,
-        base_url: str,
-        extra_headers: dict[str, str],
-        auth: Optional[AuthBase] = None,
-    ):
-        self._base_url = base_url
+        resource: MappedResource[T],
+    ) -> SyncedResource[T] | ObsoleteResource[T]:
+        pass
 
-        self.session = requests.Session()
-        self.session.headers.update(extra_headers)
-        if auth:
-            self.session.auth = auth
+    @abstractmethod
+    def create(
+        self,
+        resource: LocalResource[T],
+    ) -> SyncedResource[T]:
+        pass
 
-    def call_api(
-        self, method: str, url: str, **request_kwargs: Any
-    ) -> requests.Response:
-        # todo: add retries, timeout
-        return self.session.request(
-            method=method,
-            url=self._base_url + url,
-            **request_kwargs,
-        )
+    @abstractmethod
+    def update(
+        self,
+        resource: SyncedResource[T],
+    ) -> SyncedResource[T]:
+        pass
+
+    @abstractmethod
+    def delete(
+        self,
+        resource: ObsoleteResource[T],
+    ) -> None:
+        pass
+
+
+class HttpApiResourceHandler(ResourceHandler[T], ABC):
+    def __init__(self, client: Session):
+        self.client = client

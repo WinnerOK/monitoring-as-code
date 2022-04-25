@@ -1,5 +1,6 @@
-from monitor.binds.grafana.client.refined_models import PostableRuleGroupConfig
 from controller.api_entity import ApiEntity
+
+from monitor.binds.grafana.client.refined_models import PostableRuleGroupConfig
 
 
 class GrafanaAlert(ApiEntity):

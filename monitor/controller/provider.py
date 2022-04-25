@@ -1,14 +1,10 @@
-from abc import ABC, abstractmethod
 from typing import Collection, Generic, Iterable, Type, TypeVar
+
+from abc import ABC, abstractmethod
 
 from .diff_utils import RESOURCE_DIFF
 from .obj import MonitoringObject
-from .resource import (
-    SyncedResource,
-    MappedResource,
-    ObsoleteResource,
-    LocalResource,
-)
+from .resource import LocalResource, MappedResource, ObsoleteResource, SyncedResource
 
 T = TypeVar("T", bound=MonitoringObject)
 

@@ -1,21 +1,19 @@
-from collections import defaultdict
 from typing import Dict, Iterable, Type, TypeVar, cast
+
+from collections import defaultdict
 
 from loguru import logger
 
-from .diff_utils import print_diff, calculate_diff
-from .exceptions import (
-    DuplicatedProviderException,
-    UnknownResourceHandlerException,
-)
+from .diff_utils import calculate_diff, print_diff
+from .exceptions import DuplicatedProviderException, UnknownResourceHandlerException
 from .obj import MonitoringObject
 from .provider import Provider
 from .resource import (
+    LocalResource,
+    MappedResource,
+    ObsoleteResource,
     Resource,
     ResourceOps,
-    LocalResource,
-    ObsoleteResource,
-    MappedResource,
     SyncedResource,
 )
 from .state import State

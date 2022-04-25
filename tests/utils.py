@@ -1,5 +1,6 @@
-from functools import reduce, partial
 from typing import Collection
+
+from functools import reduce
 
 import pytest
 from _pytest.mark import ParameterSet

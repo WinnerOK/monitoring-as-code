@@ -5,13 +5,13 @@ from copy import deepcopy
 import pytest
 
 from monitor.controller.monitor import Monitor
-from monitor.controller.resource import generate_resource_local_id, SyncedResource
+from monitor.controller.resource import generate_resource_local_id
 from monitor.controller.state import RESOURCE_ID_MAPPING
 from tests.inmemory.InmemoryObject import (
     InmemoryObject,
-    PrimitiveInmemoryObject,
-    NestedPrimitiveInmemoryObject,
     NestedComposeInmemoryObject,
+    NestedPrimitiveInmemoryObject,
+    PrimitiveInmemoryObject,
 )
 from tests.inmemory.InmemoryProvider import InmemoryProvider
 from tests.inmemory.InmemoryState import InmemoryState

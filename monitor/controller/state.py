@@ -1,6 +1,7 @@
-from abc import ABC, abstractmethod
 from types import TracebackType
 from typing import Iterable, Optional, Type
+
+from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 

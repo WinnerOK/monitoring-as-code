@@ -1,5 +1,5 @@
 from .obj import MonitoringObject
-from .resource import Resource, LocalResource, ObsoleteResource
+from .resource import LocalResource, ObsoleteResource
 
 
 def get_resource_object_type_name(

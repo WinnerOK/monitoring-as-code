@@ -1,14 +1,13 @@
 from typing import Collection, Iterable, Type
 
 from monitor.controller.diff_utils import RESOURCE_DIFF, calculate_diff
-from monitor.controller.provider import Provider
-from monitor.controller.provider import T
-from monitor.controller.resource import IdType
+from monitor.controller.provider import Provider, T
 from monitor.controller.resource import (
-    ObsoleteResource,
-    SyncedResource,
+    IdType,
     LocalResource,
     MappedResource,
+    ObsoleteResource,
+    SyncedResource,
 )
 from tests.inmemory.InmemoryObject import InmemoryObject
 

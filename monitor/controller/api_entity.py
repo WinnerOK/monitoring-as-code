@@ -1,6 +1,7 @@
 # fixme Deprecated concept
-from abc import ABC, abstractmethod
 from typing import Union
+
+from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 

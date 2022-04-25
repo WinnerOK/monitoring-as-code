@@ -2,7 +2,6 @@ import pytest
 
 from tests.utils import join_param_lists
 
-
 MARK_TESTS = [
     (
         [

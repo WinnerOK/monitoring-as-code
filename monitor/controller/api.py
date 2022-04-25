@@ -1,6 +1,7 @@
 # fixme Deprecated concept
-from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
+
+from abc import ABC, abstractmethod
 
 from .api_entity import ID_TYPE, ApiEntity
 
