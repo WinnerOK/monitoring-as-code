@@ -21,7 +21,7 @@ condition = q2.refId
 Может быть тогда "локальный стейт" -- это функция, возвращающая из текущего объекта dict ???
 """
 
-
+# todo: old resource -- remove asap
 class RuleGroup(Resource):
     folder_title: str
     recipient: str = "grafana"

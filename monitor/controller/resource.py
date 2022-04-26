@@ -70,8 +70,3 @@ class SyncedResource(MappedResource[T]):
 class ObsoleteResource(Resource[T]):
     local_id: IdType
     remote_id: IdType
-
-
-class ResourceAction(Generic[T], BaseModel):
-    resource: Resource[T]
-    operation: ResourceOps
