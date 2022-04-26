@@ -46,6 +46,7 @@ class GrafanaProvider(Provider[GrafanaObject]):
         to_update: Iterable[SyncedResource[GrafanaObject]],
         to_remove: Iterable[ObsoleteResource[GrafanaObject]],
     ) -> list[SyncedResource[GrafanaObject]]:
+        # todo: somehow set order of processing to set up object dependencies
         created = [self.handlers[type(r.local_object)].create(r) for r in to_create]
 
         updated = [self.handlers[type(r.local_object)].update(r) for r in to_update]
