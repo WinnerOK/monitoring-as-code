@@ -11,6 +11,16 @@ class MonitorException(Exception):
         super(MonitorException, self).__init__(self.message)
 
 
+class UnknownResourceProviderException(MonitorException):
+    def __init__(self, resources: list[Resource]) -> None:
+        message = (
+            "No provider is registered for the following object types: {types}".format(
+                types={get_resource_object_type_name(r) for r in resources}
+            )
+        )
+        super().__init__(message)
+
+
 class UnknownResourceHandlerException(MonitorException):
     def __init__(self, resources: list[Resource]) -> None:
         message = (

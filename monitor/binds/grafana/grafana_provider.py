@@ -1,8 +1,10 @@
-from typing import Collection, Iterable, Type
+from typing import Collection, Iterable, Type, TypeVar
 
 from binds.grafana.handlers.folder import FolderHandler
 from binds.grafana.objects import Folder, GrafanaObject
+from binds.grafana.utils import group_resources
 from controller.diff_utils import RESOURCE_DIFF, calculate_diff
+from controller.handler import ResourceHandler
 from controller.provider import Provider
 from controller.resource import (
     LocalResource,
@@ -10,8 +12,9 @@ from controller.resource import (
     ObsoleteResource,
     SyncedResource,
 )
-from controller.utils import get_resource_object_type_name
 from requests import Session
+
+T = TypeVar("T", bound=GrafanaObject)
 
 
 class GrafanaProvider(Provider[GrafanaObject]):
@@ -23,9 +26,6 @@ class GrafanaProvider(Provider[GrafanaObject]):
 
         self.handlers = {
             Folder: FolderHandler(http_session),
-        }
-        self.handlers_by_name = {
-            obj_type.__name__: handler for obj_type, handler in self.handlers
         }
 
     @property
@@ -46,12 +46,40 @@ class GrafanaProvider(Provider[GrafanaObject]):
         to_update: Iterable[SyncedResource[GrafanaObject]],
         to_remove: Iterable[ObsoleteResource[GrafanaObject]],
     ) -> list[SyncedResource[GrafanaObject]]:
-        # todo: somehow set order of processing to set up object dependencies
-        created = [self.handlers[type(r.local_object)].create(r) for r in to_create]
+        type_names_to_types = {
+            type_class.__name__: type_class for type_class in self.handlers.keys()
+        }
+        synced: list[SyncedResource[GrafanaObject]] = []
 
-        updated = [self.handlers[type(r.local_object)].update(r) for r in to_update]
+        to_create_grouped = group_resources(to_create, type_names_to_types)
+        to_update_grouped = group_resources(
+            to_update,
+            type_names_to_types,
+        )
+        to_remove_grouped = group_resources(to_remove, type_names_to_types)
 
-        for r in to_remove:
-            self.handlers_by_name[get_resource_object_type_name(r)].delete(r)
+        obj_type: T
+        handler: ResourceHandler[T]
+        for obj_type, handler in self.handlers.items():
+            r_c: LocalResource[T]
+            synced.extend(
+                [
+                    self.handlers[obj_type].create(r_c)
+                    for r_c in to_create_grouped.get(obj_type, [])
+                ]
+            )
 
-        return created + updated
+            r_u: SyncedResource[T]
+            synced.extend(
+                [
+                    self.handlers[obj_type].update(r_u)
+                    for r_u in to_update_grouped.get(obj_type, [])
+                ]
+            )
+
+        for obj_type, handler in reversed(self.handlers.items()):
+            r_d: ObsoleteResource[T]
+            for r_d in to_remove_grouped.get(obj_type, []):
+                self.handlers[obj_type].delete(r_d)
+
+        return synced

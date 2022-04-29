@@ -5,7 +5,7 @@ from collections import defaultdict
 from loguru import logger
 
 from .diff_utils import calculate_diff, print_diff
-from .exceptions import DuplicatedProviderException, UnknownResourceHandlerException
+from .exceptions import DuplicatedProviderException, UnknownResourceProviderException
 from .obj import MonitoringObject
 from .provider import Provider
 from .resource import (
@@ -25,17 +25,19 @@ RESOURCE_ACTION_MAPPING = dict[Resource[T], ResourceOps]
 class Monitor:
     def __init__(
         self,
-        providers: list[Provider[T]],
+        providers: list[Provider[MonitoringObject]],
         state: State,
     ):
         self._state = state
-        self._resource_provider_map: Dict[Type[T], Provider[T]] = {}
-        self._resource_name_provider_map: Dict[str, Provider[T]] = {}
-        self._providers: list[Provider[T]] = []
+        self._resource_provider_map: Dict[
+            Type[MonitoringObject], Provider[MonitoringObject]
+        ] = {}
+        self._resource_name_provider_map: Dict[str, Provider[MonitoringObject]] = {}
+        self._providers: list[Provider[MonitoringObject]] = []
 
         self._register_providers(*providers)
 
-    def _register_providers(self, *providers: Provider[T]) -> None:
+    def _register_providers(self, *providers: Provider[MonitoringObject]) -> None:
         # todo: собрать все ошибки и показать их разом
         for provider in providers:
             for operating_object_type in provider.operating_objects:
@@ -73,7 +75,7 @@ class Monitor:
                 unhandled_resources.append(resource)
 
         if unhandled_resources:
-            raise UnknownResourceHandlerException(unhandled_resources)
+            raise UnknownResourceProviderException(unhandled_resources)
 
         return resources_by_provider
 
