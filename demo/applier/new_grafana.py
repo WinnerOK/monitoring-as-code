@@ -37,11 +37,10 @@ monitor = Monitor(
     state=state,
 )
 
-folder_foo = Folder(title="foo")
-folder_bar = Folder(title="bar")
+demo_folder = Folder(title="sandbox_folder")
 
 monitor.apply_monitoring_state(
-    monitoring_objects=[folder_foo, folder_bar],
-    # dry_run=True,
-    dry_run=False,
+    monitoring_objects=[demo_folder],
+    dry_run=True,
+    # dry_run=False,
 )

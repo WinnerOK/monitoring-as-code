@@ -22,13 +22,15 @@ Authorization: Basic {{username}} {{password}}
 
 ### Valid example
 # To update post here data with uid (https://github.com/grafana/grafana/issues/43066)
+# Node validator: https://github.com/grafana/grafana/blob/23956557d8c6a119b7de5be5c42024e29634d002/pkg/services/ngalert/api/api_ruler_validation.go#L17
+# Query validator: https://github.com/grafana/grafana/blob/23956557d8c6a119b7de5be5c42024e29634d002/pkg/services/ngalert/api/util.go#L185
 POST http://localhost:3000/api/ruler/grafana/api/v1/rules/sandbox_folder/
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 
 {
   "name": "RuleGroupName",
-  "interval": "1m",
+  "interval": "2m",
   "rules": [
     {
       "alert": "AlertName",
@@ -103,80 +105,82 @@ Content-Type: application/json
           }
         ]
       }
-    },
-    {
-      "alert": "AnotherAlertName",
-      "annotations": {
-        "ann1": "AnotherAnnotation1"
-      },
-      "expr": "",
-      "for": "5m",
-      "labels": {
-        "label1": "AnotherLabelVal"
-      },
-      "grafana_alert": {
-        "condition": "B",
-        "title": "AnotherGrafanaAlertTitle",
-        "exec_err_state": "Alerting",
-        "no_data_state": "Alerting",
-        "data": [
-          {
-            "refId": "A",
-            "datasourceUid": "UyZh4UK7z",
-            "relativeTimeRange": {
-              "from": 600,
-              "to": 0
-            },
-            "queryType": "",
-            "model": {
-              "refId": "A",
-              "expr": "scrape_duration_seconds{instance=\"prometheus-data-generator:9000\"}",
-              "interval": "",
-              "intervalMs": 1000,
-              "legendFormat": "",
-              "maxDataPoints": 43200
-            }
-          },
-          {
-            "refId": "B",
-            "queryType": "",
-            "relativeTimeRange": {
-              "from": 0,
-              "to": 0
-            },
-            "datasourceUid": "-100",
-            "model": {
-              "intervalMs": 1000,
-              "maxDataPoints": 43200,
-              "type": "classic_conditions",
-              "datasource": "__expr__",
-              "conditions": [
-                {
-                  "evaluator": {
-                    "params": [
-                      0.02
-                    ],
-                    "type": "gt"
-                  },
-                  "operator": {
-                    "type": "and"
-                  },
-                  "query": {
-                    "params": [
-                      "A"
-                    ]
-                  },
-                  "reducer": {
-                    "params": [],
-                    "type": "last"
-                  },
-                  "type": "query"
-                }
-              ]
-            }
-          }
-        ]
-      }
     }
   ]
 }
+
+###
+#{
+#      "alert": "AnotherAlertName",
+#      "annotations": {
+#        "ann1": "AnotherAnnotation1"
+#      },
+#      "expr": "",
+#      "for": "5m",
+#      "labels": {
+#        "label1": "AnotherLabelVal"
+#      },
+#      "grafana_alert": {
+#        "condition": "B",
+#        "title": "AnotherGrafanaAlertTitle",
+#        "exec_err_state": "Alerting",
+#        "no_data_state": "Alerting",
+#        "data": [
+#          {
+#            "refId": "A",
+#            "datasourceUid": "UyZh4UK7z",
+#            "relativeTimeRange": {
+#              "from": 600,
+#              "to": 0
+#            },
+#            "queryType": "",
+#            "model": {
+#              "refId": "A",
+#              "expr": "scrape_duration_seconds{instance=\"prometheus-data-generator:9000\"}",
+#              "interval": "",
+#              "intervalMs": 1000,
+#              "legendFormat": "",
+#              "maxDataPoints": 43200
+#            }
+#          },
+#          {
+#            "refId": "B",
+#            "queryType": "",
+#            "relativeTimeRange": {
+#              "from": 0,
+#              "to": 0
+#            },
+#            "datasourceUid": "-100",
+#            "model": {
+#              "intervalMs": 1000,
+#              "maxDataPoints": 43200,
+#              "type": "classic_conditions",
+#              "datasource": "__expr__",
+#              "conditions": [
+#                {
+#                  "evaluator": {
+#                    "params": [
+#                      0.02
+#                    ],
+#                    "type": "gt"
+#                  },
+#                  "operator": {
+#                    "type": "and"
+#                  },
+#                  "query": {
+#                    "params": [
+#                      "A"
+#                    ]
+#                  },
+#                  "reducer": {
+#                    "params": [],
+#                    "type": "last"
+#                  },
+#                  "type": "query"
+#                }
+#              ]
+#            }
+#          }
+#        ]
+#      }
+#    }

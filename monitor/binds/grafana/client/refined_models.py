@@ -6,7 +6,7 @@ from enum import Enum
 
 import durationpy
 from pydantic import BaseModel as pyBase
-from pydantic import Field
+from pydantic import Field, root_validator, validator
 
 
 class BaseModel(pyBase):
@@ -17,6 +17,10 @@ class BaseModel(pyBase):
 # todo:  сделать пока что 2 типа: DurationInt, DurationStr, у которых будет classmethod from_timestamp
 # потом может быть написать свою алгебру, внутри которой уже приводить к правильному типу
 class Duration(BaseModel):
+    """
+    Positive timedelta, at least 1 second
+    """
+
     __root__: timedelta
 
     # @classmethod
@@ -54,6 +58,7 @@ class RelativeTimeRange(BaseModel):
 
 
 class AlertQuery(BaseModel):
+    # todo: refer to a datasource type or "-100" if expression is target query
     datasourceUid: Optional[str] = Field(
         None,
         description="Grafana data source unique identifier; it should be '-100' for a Server Side Expression operation.",
@@ -84,27 +89,56 @@ class NoDataState(str, Enum):
 
 
 class PostableGrafanaRule(BaseModel):
-    condition: Optional[str] = None
-    data: Optional[List[AlertQuery]] = None
-    exec_err_state: Optional[ExecErrState] = None
-    no_data_state: Optional[NoDataState] = None
-    title: Optional[str] = None
+    """
+    Rules for a particular alert
+    """
+
+    condition: str  # must be one of refId of data
+    title: str = Field(..., min_length=1, max_length=190)  # alert title;
+    no_data_state: NoDataState = NoDataState.NoData
+    exec_err_state: ExecErrState = ExecErrState.Alerting
+    data: List[AlertQuery]  # non-empty list of alert data
+
+    # remote_id; If present in request -- will patch existing rule
     uid: Optional[str] = None
+
+    @validator("data")
+    def non_empty_data_validator(cls, v: list[AlertQuery]) -> list[AlertQuery]:
+        if len(v) == 0:
+            raise ValueError("data must be a non-empty list")
+        return v
+
+    @root_validator
+    def condition_present_validator(cls, values: dict[str, Any]) -> dict[str, Any]:
+        cond: str = values.get("condition")
+        data: list[AlertQuery] = values.get("data")
+
+        refs = [q.refId for q in data]
+        if cond not in refs:
+            raise ValueError(f"condition must be one of {refs}")
+
+        return values
 
 
 class PostableExtendedRuleNode(BaseModel):
-    alert: Optional[str] = None
-    annotations: Optional[Dict[str, str]] = None
-    expr: Optional[str] = None
-    for_: Optional[Duration] = Field(None, alias="for")
+    """
+    Describes one alert
+    """
+
+    alert: Optional[str] = None  # alert_name
+    annotations: Optional[Dict[str, str]] = None  # alert annotations
+    for_: Optional[Duration] = Field(None, alias="for")  # evaluation window
     grafana_alert: Optional[PostableGrafanaRule] = None
-    labels: Optional[Dict[str, str]] = None
-    record: Optional[str] = None
+    labels: Optional[Dict[str, str]] = None  # alert labels
+
+    # Purpose unknown
+    record: Optional[str] = None  # ???
+    expr: Optional[str] = None  # ???
 
 
 class PostableRuleGroupConfig(BaseModel):
-    interval: Optional[Duration] = None
-    name: str
+    interval: Optional[Duration] = None  # evaluate every xxx
+    name: str  # not really shown
     rules: Optional[List[PostableExtendedRuleNode]] = None
 
     class Config:
