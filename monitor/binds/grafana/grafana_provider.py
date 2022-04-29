@@ -61,7 +61,6 @@ class GrafanaProvider(Provider[GrafanaObject]):
         obj_type: T
         handler: ResourceHandler[T]
         for obj_type, handler in self.handlers.items():
-            r_c: LocalResource[T]
             synced.extend(
                 [
                     self.handlers[obj_type].create(r_c)
@@ -69,7 +68,6 @@ class GrafanaProvider(Provider[GrafanaObject]):
                 ]
             )
 
-            r_u: SyncedResource[T]
             synced.extend(
                 [
                     self.handlers[obj_type].update(r_u)
@@ -78,7 +76,6 @@ class GrafanaProvider(Provider[GrafanaObject]):
             )
 
         for obj_type, handler in reversed(self.handlers.items()):
-            r_d: ObsoleteResource[T]
             for r_d in to_remove_grouped.get(obj_type, []):
                 self.handlers[obj_type].delete(r_d)
 

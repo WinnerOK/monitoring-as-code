@@ -6,19 +6,17 @@ from controller.exceptions import UnknownResourceHandlerException
 from controller.obj import MonitoringObject
 from controller.resource import LocalResource, ObsoleteResource, Resource
 
-R = TypeVar("R", bound=Resource)
+R = TypeVar("R", bound=Resource[MonitoringObject])
 T = TypeVar("T")
 
 
 # fixme: подозрительно похожа на _group_resources_by_provider, мб генерализировать
 def group_resources(
-    resources: Iterable[Resource[MonitoringObject]],
+    resources: Iterable[R],
     type_names_to_types: dict[str, type[MonitoringObject]],
-) -> dict[type[MonitoringObject], list[Resource[MonitoringObject]]]:
-    grouped_resources: dict[
-        type[MonitoringObject], list[Resource[MonitoringObject]]
-    ] = defaultdict(list)
-    unhandled_resources: list[Resource[MonitoringObject]] = []
+) -> dict[type[MonitoringObject], list[R]]:
+    grouped_resources: dict[type[MonitoringObject], list[R]] = defaultdict(list)
+    unhandled_resources: list[R] = []
 
     for resource in resources:
         match resource:
