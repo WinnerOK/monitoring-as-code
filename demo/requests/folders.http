@@ -4,7 +4,7 @@ Authorization: Basic {{username}} {{password}}
 
 ###
 # Get folder by uid
-GET http://{{host}}/api/folders/test-project-maac-folder1
+GET http://{{host}}/api/folders/zHUvG3Qnk
 Authorization: Basic {{username}} {{password}}
 
 ###

@@ -15,6 +15,10 @@ Authorization: Basic {{username}} {{password}}
 GET http://localhost:3000/api/ruler/grafana/api/v1/rules/sandbox_folder/
 Authorization: Basic {{username}} {{password}}
 
+###
+GET http://localhost:3000/api/ruler/grafana/api/v1/rules/sandbox_folder/RuleGroupName/
+Authorization: Basic {{username}} {{password}}
+
 ### List datasources
 GET http://localhost:3000/api/datasources
 Authorization: Basic {{username}} {{password}}
@@ -24,10 +28,95 @@ Authorization: Basic {{username}} {{password}}
 # To update post here data with uid (https://github.com/grafana/grafana/issues/43066)
 # Node validator: https://github.com/grafana/grafana/blob/23956557d8c6a119b7de5be5c42024e29634d002/pkg/services/ngalert/api/api_ruler_validation.go#L17
 # Query validator: https://github.com/grafana/grafana/blob/23956557d8c6a119b7de5be5c42024e29634d002/pkg/services/ngalert/api/util.go#L185
-POST http://localhost:3000/api/ruler/grafana/api/v1/rules/sandbox_folder/
+
+# Grafana ignores extra fields
+POST http://localhost:3000/api/ruler/grafana/api/v1/rules/sandbox_folder
 Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 
+{
+  "interval": "2m",
+  "name": "DemoAlertTitle",
+  "rules": [
+    {
+      "annotations": {
+        "ann1": "different1Value"
+      },
+      "for": "5m",
+      "labels": {
+        "label1": "label1Value"
+      },
+      "grafana_alert": {
+        "uid": "4xyAQ9lnz",
+        "condition": "B",
+        "title": "DemoAlertTitle1",
+        "no_data_state": "NoData",
+        "exec_err_state": "Alerting",
+        "data": [
+          {
+            "refId": "A",
+            "queryType": "",
+            "datasourceUid": "UyZh4UK7z",
+            "relativeTimeRange": {
+              "from": 600,
+              "to": 0
+            },
+            "model": {
+              "refId": "A",
+              "expr": "scrape_duration_seconds{instance=\"prometheus-data-generator:9000\"}",
+              "intervalMs": 1000,
+              "maxDataPoints": 43200
+            }
+          },
+          {
+            "refId": "B",
+            "queryType": "",
+            "datasourceUid": "-100",
+            "relativeTimeRange": {
+              "from": 0,
+              "to": 0
+            },
+            "model": {
+              "refId": "B",
+              "intervalMs": 1000,
+              "maxDataPoints": 43200,
+              "type": "classic_conditions",
+              "datasource": "__expr__",
+              "conditions": [
+                {
+                  "evaluator": {
+                    "params": [
+                      0.01
+                    ],
+                    "type": "gt"
+                  },
+                  "operator": {
+                    "type": "and"
+                  },
+                  "query": {
+                    "params": [
+                      "A"
+                    ]
+                  },
+                  "reducer": {
+                    "params": [],
+                    "type": "last"
+                  },
+                  "type": "query"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "expr": "",
+      "folder_title": "sandbox_folder",
+      "evaluation_interval": "2m"
+    }
+  ]
+}
+
+###
 {
   "name": "RuleGroupName",
   "interval": "2m",
@@ -35,7 +124,7 @@ Content-Type: application/json
     {
       "alert": "AlertName",
       "annotations": {
-        "ann1": "val1"
+        "ann1": "val12"
       },
       "expr": "",
       "for": "5m",
@@ -43,8 +132,9 @@ Content-Type: application/json
         "label1": "LabelVal1"
       },
       "grafana_alert": {
+        "uid": "_5ZZwXl7z",
         "condition": "B",
-        "title": "GrafanaAlertTitle",
+        "title": "GrafanaAlertTitle1",
         "exec_err_state": "Alerting",
         "no_data_state": "Alerting",
         "data": [
@@ -55,11 +145,9 @@ Content-Type: application/json
               "from": 600,
               "to": 0
             },
-            "queryType": "",
             "model": {
               "refId": "A",
               "expr": "scrape_duration_seconds{instance=\"prometheus-data-generator:9000\"}",
-              "interval": "",
               "intervalMs": 1000,
               "legendFormat": "",
               "maxDataPoints": 43200
@@ -74,6 +162,7 @@ Content-Type: application/json
             },
             "datasourceUid": "-100",
             "model": {
+              "refId": "B",
               "intervalMs": 1000,
               "maxDataPoints": 43200,
               "type": "classic_conditions",

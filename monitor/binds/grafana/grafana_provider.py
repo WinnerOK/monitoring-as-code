@@ -1,7 +1,9 @@
 from typing import Collection, Iterable, Type, TypeVar
 
+from binds.grafana.handlers.alert import AlertHandler
 from binds.grafana.handlers.folder import FolderHandler
 from binds.grafana.objects import Folder, GrafanaObject
+from binds.grafana.objects.alert import Alert
 from binds.grafana.utils import group_resources
 from controller.diff_utils import RESOURCE_DIFF, calculate_diff
 from controller.handler import ResourceHandler
@@ -23,9 +25,11 @@ class GrafanaProvider(Provider[GrafanaObject]):
         http_session: Session,
     ):
         self.http_session = http_session
+        self.http_session.headers["Content-type"] = "application/json"
 
         self.handlers = {
             Folder: FolderHandler(http_session),
+            Alert: AlertHandler(http_session),
         }
 
     @property
@@ -38,7 +42,15 @@ class GrafanaProvider(Provider[GrafanaObject]):
         return [self.handlers[type(r.local_object)].read(r) for r in mapped_resources]
 
     def diff(self, resource: SyncedResource[GrafanaObject]) -> RESOURCE_DIFF:
-        return calculate_diff(resource.remote_object, resource.local_object)
+        exclude = dict()
+        if isinstance(resource.local_object, Alert):
+            exclude = {"grafana_alert": {"uid"}}
+
+        return calculate_diff(
+            resource.remote_object,
+            resource.local_object,
+            exclude,
+        )
 
     def apply_actions(
         self,

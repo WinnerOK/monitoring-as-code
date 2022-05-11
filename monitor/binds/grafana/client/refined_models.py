@@ -1,12 +1,13 @@
 from typing import Any, Dict, List, Optional
 
-import math
+import re
+from abc import ABC
 from datetime import timedelta
 from enum import Enum
 
 import durationpy
 from pydantic import BaseModel as pyBase
-from pydantic import Field, root_validator, validator
+from pydantic import ConstrainedStr, Field, root_validator, validator
 
 
 class BaseModel(pyBase):
@@ -14,68 +15,67 @@ class BaseModel(pyBase):
         allow_population_by_field_name = True
 
 
-# todo:  сделать пока что 2 типа: DurationInt, DurationStr, у которых будет classmethod from_timestamp
-# потом может быть написать свою алгебру, внутри которой уже приводить к правильному типу
-class Duration(BaseModel):
-    """
-    Positive timedelta, at least 1 second
-    """
+class Duration(ConstrainedStr):
+    to_lower = True
+    regex = re.compile(r"([\d.]+)([a-zµμ]+)")
 
-    __root__: timedelta
-
-    # @classmethod
-    # def from_timedelta(cls, v: timedelta) -> "Duration":
-    #     return cls(__root__=str(durationpy.to_str(v)))
-    #
-    # @validator('__root__')
-    # def ensure_duration(cls, v: str) -> str:
-    #     try:
-    #         durationpy.from_str(v)
-    #     except Exception as e:
-    #         raise ValueError(*e.args) from e
-    #     else:
-    #         return v
-
-    def seconds(self) -> int:
-        return math.floor(self.__root__.total_seconds())
-
-    def __str__(self) -> str:
-        return durationpy.to_str(self.__root__)
+    @classmethod
+    def from_timedelta(cls, delta: timedelta) -> "Duration":
+        return cls(durationpy.to_str(delta))
 
 
 class RelativeTimeRange(BaseModel):
-    """
-        RelativeTimeRange is the per query start and end time
-    for requests.
-    """
-
-    from_: Optional[Duration] = Field(None, alias="from")
-    to: Optional[Duration] = None
+    from_: int = Field(..., alias="from", description="From X seconds ago")
+    to: int = Field(0, description="Until X seconds ago")
 
     class Config:
         allow_population_by_field_name = True
-        json_encoders = {Duration: lambda d: d.seconds}
+
+
+class QueryModel(BaseModel, ABC):
+    refId: str
+
+
+class Expression(QueryModel, ABC):
+    type: str
+
+
+class PrometheusQuery(QueryModel):
+    expr: str = Field(..., description="PromQL expression")
+
+    maxDataPoints: int
+    legendFormat: Optional[str] = Field(None, description="A custom legend template")
+
+    interval: Optional[str] = Field(None, description="Min step in Go Duration format")
 
 
 class AlertQuery(BaseModel):
-    # todo: refer to a datasource type or "-100" if expression is target query
-    datasourceUid: Optional[str] = Field(
-        None,
-        description="Grafana data source unique identifier; it should be '-100' for a Server Side Expression operation.",
-    )
-    model: Optional[Dict[str, Any]] = Field(
-        None,
-        description="JSON is the raw JSON query and includes the above properties as well as custom properties.",
-    )
-    queryType: Optional[str] = Field(
-        None,
-        description="QueryType is an optional identifier for the type of query.\nIt can be used to distinguish different types of queries.",
-    )
-    refId: Optional[str] = Field(
-        None,
+    refId: str = Field(
+        ...,
         description="RefID is the unique identifier of the query, set by the frontend call.",
     )
-    relativeTimeRange: Optional[RelativeTimeRange] = None
+
+    # purpose unknown
+    queryType: str = Field(
+        "",
+        description="QueryType is an optional identifier for the type of query.\nIt can be used to distinguish different types of queries.",
+    )
+
+    # todo: refer to a datasource type or "-100" if expression is target query
+    datasourceUid: str = Field(
+        "-100",
+        description="Grafana data source unique identifier; it should be '-100' for a Server Side Expression operation.",
+    )
+
+    relativeTimeRange: RelativeTimeRange = Field(
+        ..., description="Time interval for query"
+    )
+
+    # model: QueryModel = Field(
+    model: dict[str, Any] = Field(
+        ...,
+        description="JSON is the raw JSON query and includes the above properties as well as custom properties.",
+    )
 
 
 class ExecErrState(str, Enum):
@@ -93,19 +93,19 @@ class PostableGrafanaRule(BaseModel):
     Rules for a particular alert
     """
 
+    # remote_id; If present in request -- will patch existing rule
+    uid: Optional[str] = None
+
     condition: str  # must be one of refId of data
     title: str = Field(..., min_length=1, max_length=190)  # alert title;
     no_data_state: NoDataState = NoDataState.NoData
     exec_err_state: ExecErrState = ExecErrState.Alerting
     data: List[AlertQuery]  # non-empty list of alert data
 
-    # remote_id; If present in request -- will patch existing rule
-    uid: Optional[str] = None
-
     @validator("data")
     def non_empty_data_validator(cls, v: list[AlertQuery]) -> list[AlertQuery]:
         if len(v) == 0:
-            raise ValueError("data must be a non-empty list")
+            raise ValueError("data must be a non-empty list of AlertQuery")
         return v
 
     @root_validator
@@ -113,7 +113,9 @@ class PostableGrafanaRule(BaseModel):
         cond: str = values.get("condition")
         data: list[AlertQuery] = values.get("data")
 
-        refs = [q.refId for q in data]
+        refs = {q.refId for q in data}
+        if len(refs) != len(data):
+            raise ValueError(f"AlertQueries contain duplicate refIds")
         if cond not in refs:
             raise ValueError(f"condition must be one of {refs}")
 
@@ -122,22 +124,27 @@ class PostableGrafanaRule(BaseModel):
 
 class PostableExtendedRuleNode(BaseModel):
     """
-    Describes one alert
+    Describes one alert with metadata
     """
 
-    alert: Optional[str] = None  # alert_name
-    annotations: Optional[Dict[str, str]] = None  # alert annotations
-    for_: Optional[Duration] = Field(None, alias="for")  # evaluation window
-    grafana_alert: Optional[PostableGrafanaRule] = None
-    labels: Optional[Dict[str, str]] = None  # alert labels
+    # ApiRuleNode
+    # can be empty in grafana, but does not make sense to be optional for us
+    # alert: str = Field(..., description="Alert name")
+    annotations: Optional[Dict[str, str]] = Field(None, description="Alert annotations")
+
+    for_: Optional[Duration] = Field(None, alias="for", description="Evaluation window")
+    labels: Optional[Dict[str, str]] = Field(None, description="Alert labels")
+
+    # can be empty in grafana, but does not make sense to be optional for us
+    grafana_alert: PostableGrafanaRule
 
     # Purpose unknown
     record: Optional[str] = None  # ???
-    expr: Optional[str] = None  # ???
+    expr: str = ""  # ???
 
 
 class PostableRuleGroupConfig(BaseModel):
-    interval: Optional[Duration] = None  # evaluate every xxx
+    interval: Duration  # evaluate every xxx, multiple of 10seconds
     name: str  # not really shown
     rules: Optional[List[PostableExtendedRuleNode]] = None
 

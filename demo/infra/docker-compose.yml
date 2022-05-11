@@ -15,12 +15,13 @@ networks:
 
 services:
   prometheus-data-generator:
+    <<: *defaults
     image: littleangryclouds/prometheus-data-generator
     volumes:
       - ./configs/data-generator/config.yml:/config.yml:ro
-    <<: *defaults
 
   prometheus:
+    <<: *defaults
     image: prom/prometheus:v2.29.2
     ports:
       - "9090:9090"
@@ -29,10 +30,10 @@ services:
     volumes:
       - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
-    <<: *defaults
 
   grafana:
-    image: grafana/grafana:8.5.1-ubuntu
+    <<: *defaults
+    image: grafana/grafana:8.5.2
     depends_on:
       - prometheus
     volumes:
@@ -42,4 +43,3 @@ services:
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=ngalert
       - GF_PANELS_ENABLE_ALPHA=true
-    <<: *defaults

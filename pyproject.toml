@@ -6,11 +6,11 @@ authors = ["Daniil Manakovskiy <d.manakovskiy@innopolis.university>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = "^1.8.2"
 durationpy = "^0.5"
 retry = "^0.9.2"
 loguru = "^0.6.0"
 requests = "^2.27.1"
+pydantic = "^1.9.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
