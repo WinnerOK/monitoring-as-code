@@ -1,0 +1,45 @@
+@startuml provider_workflow
+!theme materia-outline
+skinparam Backgroundcolor transparent
+' skinparam shadowing false
+
+
+actor User as user #White
+participant Monitor as monitor
+participant "Grafana\nProvider" as provider
+participant "Folder\nHandler" as folderHandler
+participant "Alert\nHandler" as alertHandler
+participant "Grafana\nAPI" as api
+
+user -> monitor : provides\nresource\nconfiguration
+monitor -> provider : get state difference for\nGrafana resources'\nconfiguration
+
+provider -> folderHandler : request folders' state
+folderHandler -> api : retrieve folders
+api -> folderHandler : return folders
+provider <- folderHandler : gets existing folders'\nstate
+
+provider -> alertHandler : request alerts' state
+alertHandler -> api : retrieve alerts
+api -> alertHandler : return alerts
+provider <- alertHandler : gets existing alerts' state
+
+provider -> monitor : returns calculated\nstate difference
+monitor -> user : prints\nexpected\nchanges
+user -> monitor : confirms\nchanges
+monitor -> provider : starts state application
+
+provider -> folderHandler : update/delete folders
+folderHandler -> api : update/delete folders
+api -> folderHandler : return updated state
+folderHandler -> provider: return updated state
+
+provider -> alertHandler : update/delete alerts
+alertHandler -> api : update/delete alerts
+api -> alertHandler : return updated state
+alertHandler -> provider : return updated state
+
+monitor <- provider : report updated state
+
+
+@enduml

@@ -1,0 +1,20 @@
+# Get list of existsing folders
+GET http://{{host}}/api/folders
+Authorization: Basic {{username}} {{password}}
+
+###
+# Get folder by uid
+GET http://{{host}}/api/folders/zHUvG3Qnk
+Authorization: Basic {{username}} {{password}}
+
+###
+# Create a new folder
+POST http://{{host}}/api/folders
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+# Can optionally pass user-generated UID
+
+{
+  "uid": "test-project-maac-folder1",
+  "title": "maac folder1"
+}

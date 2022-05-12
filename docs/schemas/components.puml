@@ -1,0 +1,103 @@
+@startuml components
+!theme materia-outline
+hide empty methods
+hide empty members
+' skinparam monochrome true
+skinparam groupInheritance 2
+
+' skinparam Backgroundcolor white
+skinparam Backgroundcolor transparent
+
+
+' UML guide: https://www.guru99.com/uml-cheatsheet-reference-guide.html#2
+
+package "Controller" as controller {
+
+    class "Monitor" as monitor {
+
+    }
+
+    ' abstract class "State" as genericState {}
+
+    abstract class "Handler[R]" as genericHandler {
+
+    }
+
+    abstract class "Resource" as genericResource {
+
+    }
+
+    abstract class "Provider[R]" as genericProvider {
+
+    }
+
+    genericResource -down[hidden]-> genericHandler
+    genericHandler -down[hidden]-> genericProvider
+    genericProvider -down[hidden]-> monitor
+}
+
+
+
+package "Grafana" as GrafanaPackage {
+    
+
+    class "Provider<extends Provider[GrafanaResource]>" as GrafanaProvider {
+
+    }
+
+    package "Handlers" as GrafanaHandlers {
+
+        class FolderHandler <extends Handler[Folder]> {}
+        class AlertHandler <extends Handler[Alert]> {}
+
+        FolderHandler -down[hidden]->AlertHandler
+    }
+
+    package "Resources" as GrafanaResources {
+        class GrafanaResource {}
+        class Folder {}
+        class Alert {}
+
+        GrafanaResource --> Folder
+        GrafanaResource --> Alert
+    }
+
+
+    Folder --o GrafanaProvider
+    Alert --o GrafanaProvider
+
+    AlertHandler --|> GrafanaProvider
+    FolderHandler --|> GrafanaProvider
+
+}
+
+genericHandler --> AlertHandler
+genericHandler --> FolderHandler
+
+genericResource --> GrafanaResource
+genericProvider --> GrafanaProvider
+
+GrafanaProvider --|> monitor
+
+
+' White-Black versions
+!$inheritanceArrowWB = "<img:http://www.plantuml.com/plantuml/png/LOuniiCW34HxJg7_UnTS8EEhh44nJ43A236vVd3dp5PltnQx3uVvx2tyUU7ErE5i5PjERrKuZ5ULDmoTkegcOhf6RlDkHa7MJvMJdcZZRX8i7sgPBMbJ8r7XS9Nqlu91Y3zun10GQRDw5jyU5-yiUVtx0W00>"
+!$hollowArrowWB = "<img:http://www.plantuml.com/plantuml/png/LOun4i8m30HxlqBGfyW7c7pb4elOWoKniZmqF9wa2tFLxJQxz837a9PkKLYO1C5UCTc8LfLJVrLzmo4afhOLDs4A7rVJ2x9zgkxqHEjNiy7pQfxPDslcfAQSJaZtO-Y4-U-kSqgOQVAwbvY-ZnCihFa8_040>"
+!$aggregationArrowWB = "<img:http://www.plantuml.com/plantuml/png/LOun4iCW30HxNg6aTy4F_9KpA8O9I1aX9jyFxfovQc-lk7qup6TluU65ErE7irLiEhrLuJ3ULJumTEegcehf6hdDkna5MRzLJdgXZRj9i7oePRQaJOr4XSDLqdC5Wn3_y8WX8D9czIo-wSKxIrx_VW00>"
+
+
+' Colored versions
+!$inheritanceArrow = "<img:http://www.plantuml.com/plantuml/png/POunhWCX34HxJk7_Umek4ErLPi5PKC2EZ5UvVjWkKJJLcpV5RDDXVeuU_hpoO1fmjeQef_Sc7EQZoHE6GKD5SpLTeplw_5IpekYhoV5ZCgpiQeKjQrSZKU5mbVI_Wab8NxYd490eMZkgnzl56qjP1zy0>"
+!$hollowArrow = "<img:http://www.plantuml.com/plantuml/png/POwn3i8m34JtV8LXxv0VGFsLQsAQYCH6ZYiMFfvq0w6RxhqRRXqEywEtSF72dQd3sIeMFRnLuJ0ULPumTEegcehf7DtHnhSQ1LbVLVO_as1vKyjiIPiQYGg74z9r1eCGV-eMGq2anUfUV7dVJh2ovFdm0m00>"
+!$aggregationArrow = "<img:http://www.plantuml.com/plantuml/png/POun4iCW30HxNg6af-07_ieP5CC4f8oG9zyFxfB9NBMtLzms7URdwE7cbGVJWBCrH3szD-4mdqrUC0mQAfghwHezqEUtcXL5tqsEFvDXPLShR5cx6eaAXwka-mec8VtWda90ecZjg1xruesbh8CV>"
+
+
+legend top right
+|=symbol|=description|
+| $inheritanceArrow | inherited |
+| $hollowArrow | operates with |
+| $aggregationArrow | aggregates |
+| [R] | template variable R|
+endlegend
+
+@enduml

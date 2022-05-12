@@ -1,0 +1,45 @@
+version: '2.4'
+
+x-defaults:
+  &defaults
+  restart: unless-stopped
+  networks:
+    - maac
+
+volumes:
+  grafana-data:
+  prometheus-data:
+
+networks:
+  maac:
+
+services:
+  prometheus-data-generator:
+    <<: *defaults
+    image: littleangryclouds/prometheus-data-generator
+    volumes:
+      - ./configs/data-generator/config.yml:/config.yml:ro
+
+  prometheus:
+    <<: *defaults
+    image: prom/prometheus:v2.29.2
+    ports:
+      - "9090:9090"
+    depends_on:
+      - prometheus-data-generator
+    volumes:
+      - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+
+  grafana:
+    <<: *defaults
+    image: grafana/grafana:8.5.2
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=ngalert
+      - GF_PANELS_ENABLE_ALPHA=true

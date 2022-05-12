@@ -1,0 +1,13 @@
+global:
+  # probably worth having longer interval at production
+  # it is small for faster testing
+  # The intervals can also be specified on per-job basis
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  scrape_timeout: 3s
+
+scrape_configs:
+  - job_name: "data-generator"
+    static_configs:
+      - targets:
+          - "prometheus-data-generator:9000"
