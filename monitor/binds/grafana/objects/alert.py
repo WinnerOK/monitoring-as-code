@@ -1,8 +1,8 @@
-from binds.grafana.client.refined_models import (
-    Duration,
+from binds.grafana.client.alerting import (
     PostableExtendedRuleNode,
     PostableRuleGroupConfig,
 )
+from binds.grafana.client.types import Duration
 from pydantic import Field
 
 from .base import GrafanaObject
@@ -25,20 +25,6 @@ class AlertGroup(PostableRuleGroupConfig):
             exclude_none=exclude_none,
             **kwargs,
         )
-
-
-"""
-fixme: object attempts to change uid
---- before
-+++ after
-@@ -65,7 +65,7 @@
-     "exec_err_state": "Alerting",
-     "no_data_state": "NoData",
-     "title": "DemoAlertTitle",
--    "uid": "wkRFEX_nz"
-+    "uid": null
-   },
-"""
 
 
 class Alert(GrafanaObject, PostableExtendedRuleNode):

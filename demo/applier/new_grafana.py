@@ -2,12 +2,8 @@ from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urljoin
 
-from binds.grafana.client.refined_models import (
-    AlertQuery,
-    Duration,
-    PostableGrafanaRule,
-    RelativeTimeRange,
-)
+from binds.grafana.client.refined_models import AlertQuery, PostableGrafanaRule
+from binds.grafana.client.types import Duration, RelativeTimeRange
 from binds.grafana.grafana_provider import GrafanaProvider
 from binds.grafana.objects import Folder
 from binds.grafana.objects.alert import Alert
@@ -50,7 +46,6 @@ monitor = Monitor(
 demo_folder = Folder(title="sandbox_folder")
 
 prometheus_query = AlertQuery(
-    refId="A",
     datasourceUid=DATASOURCE_UID,
     relativeTimeRange=RelativeTimeRange(
         from_=10 * 60,
@@ -65,7 +60,6 @@ prometheus_query = AlertQuery(
     },
 )
 expression_query = AlertQuery(
-    refId="B",
     relativeTimeRange=RelativeTimeRange(
         from_=0,
     ),
@@ -90,7 +84,6 @@ expression_query = AlertQuery(
 demo_alert = Alert(
     folder_title=demo_folder.title,
     evaluation_interval=Duration.from_timedelta(timedelta(minutes=2)),
-    # alert="demoAlertName",
     annotations={
         "ann1": "ann11Value",
     },
@@ -114,8 +107,8 @@ another_demo_alert.grafana_alert.title = "Different_alert"
 try:
     monitor.apply_monitoring_state(
         monitoring_objects=[demo_folder, demo_alert, another_demo_alert],
-        # dry_run=True,
-        dry_run=False,
+        dry_run=True,
+        # dry_run=False,
     )
 except HTTPError as e:
     logger.debug(e.response.json())

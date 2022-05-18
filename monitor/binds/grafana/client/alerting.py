@@ -1,64 +1,21 @@
 from typing import Any, Dict, List, Optional
 
-import re
-from abc import ABC
-from datetime import timedelta
 from enum import Enum
 
-import durationpy
-from pydantic import BaseModel as pyBase
-from pydantic import ConstrainedStr, Field, root_validator, validator
+from pydantic import Field, root_validator, validator
 
-
-class BaseModel(pyBase):
-    class Config:
-        allow_population_by_field_name = True
-
-
-class Duration(ConstrainedStr):
-    to_lower = True
-    regex = re.compile(r"([\d.]+)([a-zµμ]+)")
-
-    @classmethod
-    def from_timedelta(cls, delta: timedelta) -> "Duration":
-        return cls(durationpy.to_str(delta))
-
-
-class RelativeTimeRange(BaseModel):
-    from_: int = Field(..., alias="from", description="From X seconds ago")
-    to: int = Field(0, description="Until X seconds ago")
-
-    class Config:
-        allow_population_by_field_name = True
-
-
-class QueryModel(BaseModel, ABC):
-    refId: str
-
-
-class Expression(QueryModel, ABC):
-    type: str
-
-
-class PrometheusQuery(QueryModel):
-    expr: str = Field(..., description="PromQL expression")
-
-    maxDataPoints: int
-    legendFormat: Optional[str] = Field(None, description="A custom legend template")
-
-    interval: Optional[str] = Field(None, description="Min step in Go Duration format")
+from .base import BaseModel
+from .types import Duration, RelativeTimeRange
 
 
 class AlertQuery(BaseModel):
-    refId: str = Field(
-        ...,
-        description="RefID is the unique identifier of the query, set by the frontend call.",
-    )
-
     # purpose unknown
     queryType: str = Field(
         "",
-        description="QueryType is an optional identifier for the type of query.\nIt can be used to distinguish different types of queries.",
+        description=(
+            "QueryType is an optional identifier for the type of query.\n"
+            "It can be used to distinguish different types of queries."
+        ),
     )
 
     # todo: refer to a datasource type or "-100" if expression is target query
@@ -71,11 +28,23 @@ class AlertQuery(BaseModel):
         ..., description="Time interval for query"
     )
 
-    # model: QueryModel = Field(
     model: dict[str, Any] = Field(
         ...,
         description="JSON is the raw JSON query and includes the above properties as well as custom properties.",
     )
+
+    refId: str = Field(
+        None,  # together with validator is a hack until https://github.com/samuelcolvin/pydantic/pull/2625 is released
+        description="RefID is the unique identifier of the query, set by the frontend call.",
+    )
+
+    @validator("refId", always=True, pre=True)
+    def populate_refId(cls, v, values):
+        if v:
+            return v
+        if model := values.get("model"):
+            return model["refId"]
+        raise ValueError("Expected to populate refId from model, but model was empty")
 
 
 class ExecErrState(str, Enum):
