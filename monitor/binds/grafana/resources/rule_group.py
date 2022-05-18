@@ -1,6 +1,7 @@
 from typing import List
 
-from binds.grafana.client.refined_models import Duration, PostableExtendedRuleNode
+from binds.grafana.client.refined_models import PostableExtendedRuleNode
+from binds.grafana.client.types import Duration
 from controller.resource import Resource
 
 # todo хочется как-то разделить связи между объектами и тот самый "локальный стейт"

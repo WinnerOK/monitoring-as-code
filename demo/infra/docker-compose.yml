@@ -16,7 +16,7 @@ networks:
 services:
   prometheus-data-generator:
     <<: *defaults
-    image: littleangryclouds/prometheus-data-generator
+    image: littleangryclouds/prometheus-data-generator:0.2
     volumes:
       - ./configs/data-generator/config.yml:/config.yml:ro
 
@@ -26,7 +26,7 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - prometheus-data-generator
+      - data-generator
     volumes:
       - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus

@@ -2,15 +2,17 @@ from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urljoin
 
-from binds.grafana.client.refined_models import (
-    AlertQuery,
-    Duration,
-    PostableGrafanaRule,
-    RelativeTimeRange,
+from binds.grafana.client.alert_queries import ClassicExpression, PrometheusQuery
+from binds.grafana.client.alert_queries.classic_conditions import (
+    GT,
+    ClassicCondition,
+    Reducers,
 )
+from binds.grafana.client.alert_queries.classic_conditions import dictify_condition as d
+from binds.grafana.client.alerting import AlertQuery, PostableGrafanaRule
+from binds.grafana.client.types import Duration, RelativeTimeRange
 from binds.grafana.grafana_provider import GrafanaProvider
-from binds.grafana.objects import Folder
-from binds.grafana.objects.alert import Alert
+from binds.grafana.objects import Folder, Alert
 from controller.monitor import Monitor
 from controller.states import FileState
 from loguru import logger
@@ -50,54 +52,46 @@ monitor = Monitor(
 demo_folder = Folder(title="sandbox_folder")
 
 prometheus_query = AlertQuery(
-    refId="A",
     datasourceUid=DATASOURCE_UID,
     relativeTimeRange=RelativeTimeRange(
         from_=10 * 60,
     ),
-    model={
-        "refId": "A",
-        "expr": 'scrape_duration_seconds{instance="prometheus-data-generator:9000"}',
-        # "interval": "",
-        "intervalMs": 1000,
-        # "legendFormat": "",
-        "maxDataPoints": 43200,
-    },
+    model=PrometheusQuery(
+        refId="DataQuery",
+        expr='100 * scrape_duration_seconds{instance="prometheus-data-generator:9000"}',
+        maxDataPoints=43200,
+        interval=Duration("10s"),
+    ),
 )
 expression_query = AlertQuery(
-    refId="B",
     relativeTimeRange=RelativeTimeRange(
         from_=0,
     ),
     datasourceUid="-100",
-    model={
-        "refId": "B",
-        "intervalMs": 1000,
-        "maxDataPoints": 43200,
-        "type": "classic_conditions",
-        "datasource": "__expr__",
-        "conditions": [
-            {
-                "evaluator": {"params": [0.01], "type": "gt"},
-                "operator": {"type": "and"},
-                "query": {"params": [prometheus_query.refId]},
-                "reducer": {"params": [], "type": "last"},
-                "type": "query",
-            }
+    model=ClassicExpression(
+        refId="AlertCond",
+        conditions=[
+            d(
+                ClassicCondition(
+                    reducer=Reducers.LAST,
+                    query=prometheus_query.refId,
+                    evaluator=GT(param=0.2),
+                )
+            )
         ],
-    },
+    ),
 )
+
 demo_alert = Alert(
     folder_title=demo_folder.title,
-    evaluation_interval=Duration.from_timedelta(timedelta(minutes=2)),
-    # alert="demoAlertName",
+    evaluation_interval=Duration.from_timedelta(timedelta(seconds=10)),
     annotations={
         "ann1": "ann11Value",
     },
     labels={
         "label1": "label1Value",
     },
-    for_=Duration.from_timedelta(timedelta(minutes=5)),
+    for_=Duration.from_timedelta(timedelta(seconds=30)),
     grafana_alert=PostableGrafanaRule(
         condition=expression_query.refId,
         title="DemoAlertTitle",
@@ -113,9 +107,13 @@ another_demo_alert.grafana_alert.title = "Different_alert"
 
 try:
     monitor.apply_monitoring_state(
-        monitoring_objects=[demo_folder, demo_alert, another_demo_alert],
-        # dry_run=True,
-        dry_run=False,
+        monitoring_objects=[
+            demo_folder,
+            demo_alert,
+            another_demo_alert,
+        ],
+        dry_run=True,
+        # dry_run=False,
     )
 except HTTPError as e:
     logger.debug(e.response.json())

@@ -8,32 +8,22 @@ skinparam groupInheritance 2
 ' skinparam Backgroundcolor white
 skinparam Backgroundcolor transparent
 
+' skinparam linetype ortho
 
 ' UML guide: https://www.guru99.com/uml-cheatsheet-reference-guide.html#2
 
 package "Controller" as controller {
 
-    class "Monitor" as monitor {
+    class "Monitor" as monitor {}
+    abstract class "Handler[R]" as genericHandler {}
+    abstract class "MonObject" as genericObject {}
+    abstract class "Provider[R]" as genericProvider {}
+    abstract class "State" as genericState {}
 
-    }
-
-    ' abstract class "State" as genericState {}
-
-    abstract class "Handler[R]" as genericHandler {
-
-    }
-
-    abstract class "Resource" as genericResource {
-
-    }
-
-    abstract class "Provider[R]" as genericProvider {
-
-    }
-
-    genericResource -down[hidden]-> genericHandler
+    genericObject -down[hidden]-> genericHandler
     genericHandler -down[hidden]-> genericProvider
     genericProvider -down[hidden]-> monitor
+    monitor -down[hidden]-> genericState
 }
 
 
@@ -41,9 +31,7 @@ package "Controller" as controller {
 package "Grafana" as GrafanaPackage {
     
 
-    class "Provider<extends Provider[GrafanaResource]>" as GrafanaProvider {
-
-    }
+    class "Provider<extends Provider[GrafanaObject]>" as GrafanaProvider {}
 
     package "Handlers" as GrafanaHandlers {
 
@@ -53,13 +41,13 @@ package "Grafana" as GrafanaPackage {
         FolderHandler -down[hidden]->AlertHandler
     }
 
-    package "Resources" as GrafanaResources {
-        class GrafanaResource {}
+    package "Objects" as GrafanaObjects {
+        class "GrafanaObject" as GrafanaObject {}
         class Folder {}
         class Alert {}
 
-        GrafanaResource --> Folder
-        GrafanaResource --> Alert
+        GrafanaObject --> Folder
+        GrafanaObject --> Alert
     }
 
 
@@ -71,13 +59,27 @@ package "Grafana" as GrafanaPackage {
 
 }
 
-genericHandler --> AlertHandler
-genericHandler --> FolderHandler
 
-genericResource --> GrafanaResource
-genericProvider --> GrafanaProvider
+package "States" as statesPackage {
+    class "LocalFileState<extends State>" as LocalFileState {}
+}
 
-GrafanaProvider --|> monitor
+genericHandler -> AlertHandler
+genericHandler -> FolderHandler
+
+genericObject --> GrafanaObject
+genericProvider -> GrafanaProvider
+
+genericState -right- statesPackage
+statesPackage -right-> LocalFileState
+
+GrafanaProvider -----|> monitor
+statesPackage-up-|> monitor
+
+
+
+' Layout juggling hacks
+LocalFileState -up[hidden]->GrafanaProvider
 
 
 ' White-Black versions
