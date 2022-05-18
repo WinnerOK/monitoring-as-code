@@ -4,6 +4,9 @@ from enum import Enum
 
 from pydantic import Field, root_validator, validator
 
+from .alert_queries import Expression, QueryModel
+from .alert_queries.classic_conditions import EXPRESSION_DATASOURCE_UID
+from .alert_queries.queries import QUERY_MODEL_UNION
 from .base import BaseModel
 from .types import Duration, RelativeTimeRange
 
@@ -18,19 +21,18 @@ class AlertQuery(BaseModel):
         ),
     )
 
-    # todo: refer to a datasource type or "-100" if expression is target query
-    datasourceUid: str = Field(
-        "-100",
-        description="Grafana data source unique identifier; it should be '-100' for a Server Side Expression operation.",
-    )
-
     relativeTimeRange: RelativeTimeRange = Field(
         ..., description="Time interval for query"
     )
 
-    model: dict[str, Any] = Field(
+    model: QUERY_MODEL_UNION = Field(
         ...,
         description="JSON is the raw JSON query and includes the above properties as well as custom properties.",
+    )
+
+    datasourceUid: str = Field(
+        "-100",
+        description="Grafana data source unique identifier; it should be '-100' for a Server Side Expression operation.",
     )
 
     refId: str = Field(
@@ -43,8 +45,24 @@ class AlertQuery(BaseModel):
         if v:
             return v
         if model := values.get("model"):
-            return model["refId"]
+            return model.refId
         raise ValueError("Expected to populate refId from model, but model was empty")
+
+    @root_validator
+    def validate_datasource(cls, values: dict[str, Any]) -> dict[str, Any]:
+        query_model: QueryModel = values["model"]
+        datasourceUid: str = values["datasourceUid"]
+
+        if (
+            isinstance(query_model, Expression)
+            and datasourceUid != EXPRESSION_DATASOURCE_UID
+        ):
+            raise ValueError(
+                "Expression queries must have datasource uid %s, got %s"
+                % (EXPRESSION_DATASOURCE_UID, datasourceUid)
+            )
+
+        return values
 
 
 class ExecErrState(str, Enum):
@@ -96,9 +114,6 @@ class PostableExtendedRuleNode(BaseModel):
     Describes one alert with metadata
     """
 
-    # ApiRuleNode
-    # can be empty in grafana, but does not make sense to be optional for us
-    # alert: str = Field(..., description="Alert name")
     annotations: Optional[Dict[str, str]] = Field(None, description="Alert annotations")
 
     for_: Optional[Duration] = Field(None, alias="for", description="Evaluation window")

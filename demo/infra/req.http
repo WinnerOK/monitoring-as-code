@@ -16,7 +16,7 @@ GET http://localhost:3000/api/ruler/grafana/api/v1/rules/manual/
 Authorization: Basic {{username}} {{password}}
 
 ###
-GET http://localhost:3000/api/ruler/grafana/api/v1/rules/sandbox_folder/RuleGroupName/
+GET http://localhost:3000/api/ruler/grafana/api/v1/rules/sandbox_folder/DemoAlertTitle/
 Authorization: Basic {{username}} {{password}}
 
 ### List datasources
@@ -65,7 +65,7 @@ Content-Type: application/json
             "model": {
               "refId": "A",
               "expr": "100 * scrape_duration_seconds{instance=\"prometheus-data-generator:9000\"}",
-              "intervalMs": 1000,
+              "interval": "10s",
               "legendFormat": "",
               "maxDataPoints": 43200
             }
@@ -80,8 +80,6 @@ Content-Type: application/json
             "datasourceUid": "-100",
             "model": {
               "refId": "B",
-              "intervalMs": 1000,
-              "maxDataPoints": 43200,
               "type": "classic_conditions",
               "datasource": "__expr__",
               "conditions": [
@@ -97,7 +95,6 @@ Content-Type: application/json
                     "params": ["A"]
                   },
                   "reducer": {
-                    "params": [],
                     "type": "last"
                   },
                   "type": "query"
