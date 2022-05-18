@@ -1,4 +1,4 @@
-from http import HTTPStatus as status
+from http import HTTPStatus as Status
 
 from binds.grafana.objects.alert import Alert, AlertGroup
 from controller.handler import HttpApiResourceHandler
@@ -39,12 +39,12 @@ class AlertHandler(HttpApiResourceHandler[Alert]):
     ) -> SyncedResource[Alert] | ObsoleteResource[Alert]:
         remote_identifier = Alert.get_remote_identifier(resource.local_id)
         response = self.client.get(f"ruler/grafana/api/v1/rules/{remote_identifier}")
-        if response.status_code == status.NOT_FOUND:
+        if response.status_code == Status.NOT_FOUND:
             return ObsoleteResource(
                 local_id=resource.local_id,
                 remote_id=resource.remote_id,
             )
-        elif response.status_code == status.ACCEPTED:
+        elif response.status_code == Status.ACCEPTED:
             json = response.json()
             alert_group = AlertGroup(**json)
             alert_id = alert_group.rules[0].grafana_alert.uid

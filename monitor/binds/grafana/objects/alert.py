@@ -9,6 +9,7 @@ from .base import GrafanaObject
 
 __all__ = [
     "Alert",
+    "AlertGroup",
 ]
 
 

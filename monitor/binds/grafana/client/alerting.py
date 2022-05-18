@@ -32,7 +32,9 @@ class AlertQuery(BaseModel):
 
     datasourceUid: str = Field(
         "-100",
-        description="Grafana data source unique identifier; it should be '-100' for a Server Side Expression operation.",
+        description=
+        "Grafana data source unique identifier; "
+        "it should be '-100' for a Server Side Expression operation.",
     )
 
     refId: str = Field(
@@ -41,7 +43,7 @@ class AlertQuery(BaseModel):
     )
 
     @validator("refId", always=True, pre=True)
-    def populate_refId(cls, v, values):
+    def populate_ref_id(cls, v, values):
         if v:
             return v
         if model := values.get("model"):
@@ -51,15 +53,15 @@ class AlertQuery(BaseModel):
     @root_validator
     def validate_datasource(cls, values: dict[str, Any]) -> dict[str, Any]:
         query_model: QueryModel = values["model"]
-        datasourceUid: str = values["datasourceUid"]
+        datasource_uid: str = values["datasourceUid"]
 
         if (
             isinstance(query_model, Expression)
-            and datasourceUid != EXPRESSION_DATASOURCE_UID
+            and datasource_uid != EXPRESSION_DATASOURCE_UID
         ):
             raise ValueError(
                 "Expression queries must have datasource uid %s, got %s"
-                % (EXPRESSION_DATASOURCE_UID, datasourceUid)
+                % (EXPRESSION_DATASOURCE_UID, datasource_uid)
             )
 
         return values

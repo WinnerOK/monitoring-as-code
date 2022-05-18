@@ -8,7 +8,7 @@ from loguru import logger
 from .obj import MonitoringObject
 
 if typing.TYPE_CHECKING:
-    from pydantic.typing import AbstractSetIntStr, MappingIntStrAny
+    from pydantic.typing import AbstractSetIntStr, MappingIntStrAny  # noqa
 
 
 RESOURCE_DIFF = Iterable[str]

@@ -1,4 +1,4 @@
-from http import HTTPStatus as status
+from http import HTTPStatus as Status
 
 from binds.grafana.objects import Folder
 from controller.handler import HttpApiResourceHandler
@@ -18,12 +18,12 @@ class FolderHandler(HttpApiResourceHandler[Folder]):
         # Get folder by uid
         response = self.client.get(f"folders/{resource.remote_id}")
 
-        if response.status_code == status.NOT_FOUND:
+        if response.status_code == Status.NOT_FOUND:
             return ObsoleteResource(
                 local_id=resource.local_id,
                 remote_id=resource.remote_id,
             )
-        elif response.status_code == status.OK:
+        elif response.status_code == Status.OK:
             json = response.json()
             folder = Folder(**json)
             return SyncedResource(
