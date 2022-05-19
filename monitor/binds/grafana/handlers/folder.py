@@ -85,4 +85,7 @@ class FolderHandler(HttpApiResourceHandler[Folder]):
             },
         )
 
+        if response.status_code == Status.NOT_FOUND:
+            return
+
         response.raise_for_status()

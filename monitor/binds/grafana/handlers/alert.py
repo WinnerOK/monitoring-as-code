@@ -106,4 +106,7 @@ class AlertHandler(HttpApiResourceHandler[Alert]):
         response = self.client.delete(
             f"ruler/grafana/api/v1/rules/{remote_identifier}",
         )
+        if response.status_code == Status.NOT_FOUND:
+            return
+
         response.raise_for_status()
