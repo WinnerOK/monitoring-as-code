@@ -26,7 +26,7 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - data-generator
+      - prometheus-data-generator
     volumes:
       - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
@@ -37,6 +37,7 @@ services:
     depends_on:
       - prometheus
     volumes:
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana-data:/var/lib/grafana
     ports:
       - "3000:3000"

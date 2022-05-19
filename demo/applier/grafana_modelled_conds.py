@@ -12,7 +12,7 @@ from binds.grafana.client.alert_queries.classic_conditions import dictify_condit
 from binds.grafana.client.alerting import AlertQuery, PostableGrafanaRule
 from binds.grafana.client.types import Duration, RelativeTimeRange
 from binds.grafana.grafana_provider import GrafanaProvider
-from binds.grafana.objects import Folder, Alert
+from binds.grafana.objects import Alert, Folder
 from controller.monitor import Monitor
 from controller.states import FileState
 from loguru import logger
@@ -20,7 +20,7 @@ from requests import HTTPError, Response, Session
 
 USERNAME = "admin"
 PASSWORD = "admin"
-DATASOURCE_UID = "UyZh4UK7z"
+DATASOURCE_UID = "PrometheusUID"
 
 
 class BaseUrlSession(Session):
