@@ -32,8 +32,7 @@ class AlertQuery(BaseModel):
 
     datasourceUid: str = Field(
         "-100",
-        description=
-        "Grafana data source unique identifier; "
+        description="Grafana data source unique identifier; "
         "it should be '-100' for a Server Side Expression operation.",
     )
 

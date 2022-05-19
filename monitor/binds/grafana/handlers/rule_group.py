@@ -51,7 +51,7 @@ class AlertGroupHandler(HttpApiResourceHandler[AlertGroup]):
     def update(
         self, resource: SyncedResource[AlertGroup]
     ) -> SyncedResource[AlertGroup]:
-        pass
+        raise NotImplementedError()
 
     def delete(self, resource: ObsoleteResource[AlertGroup]) -> None:
-        pass
+        raise NotImplementedError()
