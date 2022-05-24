@@ -51,7 +51,7 @@ class PrometheusQuery(QueryModel):
     type: Literal["prometheus_query"] = "prometheus_query"
 
     expr: str = Field(..., description="PromQL expression")
-    maxDataPoints: int
+    maxDataPoints: int = 43500
     legendFormat: Optional[str] = Field(None, description="A custom legend template")
     interval: Optional[Duration] = Field(
         None,

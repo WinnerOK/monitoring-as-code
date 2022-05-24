@@ -33,7 +33,7 @@ services:
 
   grafana:
     <<: *defaults
-    image: grafana/grafana:8.5.2
+    image: grafana/grafana:8.5.3
     depends_on:
       - prometheus
     volumes:

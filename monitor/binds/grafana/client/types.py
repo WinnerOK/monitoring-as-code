@@ -19,5 +19,16 @@ class RelativeTimeRange(BaseModel):
     from_: int = Field(..., alias="from", description="From X seconds ago")
     to: int = Field(0, description="Until X seconds ago")
 
+    @classmethod
+    def last(cls, delta: timedelta):
+        return cls(
+            from_=int(delta.total_seconds()),
+            to=0
+        )
+
+    @classmethod
+    def instant(cls):
+        return cls(from_=0, to=0)
+
     class Config:
         allow_population_by_field_name = True

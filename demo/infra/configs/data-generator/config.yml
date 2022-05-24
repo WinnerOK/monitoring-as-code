@@ -1,34 +1,45 @@
+x-default: &default
+  - time: 5
+    eval_time: 5
+
+
 config:
   - name: number_of_fruits
     description: The number of fruits we have.
     type: gauge
     labels: [ name, color ]
     sequence:
-      - time: 5
-        eval_time: 5
+      - <<: *default
         values: 0-20
         operation: inc
         labels:
           name: apple
           color: red
-      - time: 5
-        eval_time: 5
-        values: 0-20
+
+      - <<: *default
+          values: 0-20
+          operation: dec
+          labels:
+            name: apple
+            color: red
+
+      - <<: *default
+          values: 0-50
+          operation: inc
+          labels:
+            name: apple
+            color: green
+
+      - <<: *default
+          values: 0-50
+          operation: dec
+          labels:
+            name: apple
+            color: green
+
+      - <<: *default
+        values: 15-20
         operation: inc
         labels:
-          name: apple
-          color: green
-      - time: 5
-        eval_time: 5
-        values: 0-5
-        operation: dec
-        labels:
-          name: apple
-          color: green
-      - time: 5
-        eval_time: 5
-        value: 3
-        operation: inc
-        labels:
-          name: apple
+          name: banana
           color: yellow
