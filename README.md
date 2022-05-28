@@ -25,6 +25,15 @@ Until the project is mature, please pin a particular version. E.g.:
 pip install monitoring-as-code==0.0.2
 ```
 
+## Why to use
+People do often configure alerting in the UI because "it is handy", or never configure alerting because "it is difficult".
+Configuring alerts in UI do not preserve authorship and prone to human errors. 
+
+The framework aims to provide a way to setup alerting easy, save configuration in a version control system (and review changes).
+Since the framework is written in Python, you can compose templates of alerts. 
+
+The ultimate goal is for people to use alert templates together with a metric exporter and its dashboard template. 
+
 ## How to use
 The base framework provides abstractions for a `Provider` to implement. 
 The `Provider` represents a remote system, it can enclose dependency resolution logic within a service (e.g. the processing order).
