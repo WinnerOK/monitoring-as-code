@@ -1,8 +1,19 @@
 [tool.poetry]
 name = "monitoring_as_code"
-version = "0.0.1"
+version = "0.0.2"
 description = "A monitoring as code approach library"
-authors = ["Daniil Manakovskiy <d.manakovskiy@innopolis.university>"]
+authors = ["Daniil Manakovskiy <d.manakovskiy@gmail.com>"]
+repository = "https://github.com/WinnerOK/monitoring-as-code"
+keywords = [
+  "monitoring-as-code",
+  "monitoring-configuration",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Topic :: Utilities",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
