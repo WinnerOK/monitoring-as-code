@@ -13,16 +13,19 @@ from controller.resource import (
 class AlertGroupHandler(HttpApiResourceHandler[AlertGroup]):
     def read(
         self, resource: MappedResource[AlertGroup]
-    ) -> SyncedResource[AlertGroup] | ObsoleteResource[AlertGroup]:
+    ) -> SyncedResource[AlertGroup] | LocalResource[AlertGroup]:
         response = self.client.get(f"ruler/grafana/api/v1/rules/{resource.remote_id}")
 
         if response.status_code == Status.NOT_FOUND:
-            return ObsoleteResource(
-                local_id=resource.local_id,
-                remote_id=resource.remote_id,
+            return LocalResource(
+                local_object=resource.local_object,
             )
         elif response.status_code == Status.ACCEPTED:
             json = response.json()
+            if not json['rules']:
+                return LocalResource(
+                    local_object=resource.local_object,
+                )
             alert_group = AlertGroup(**json)
             return SyncedResource[AlertGroup](
                 local_object=resource.local_object,

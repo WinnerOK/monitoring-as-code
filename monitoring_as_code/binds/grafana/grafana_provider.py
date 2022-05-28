@@ -38,7 +38,7 @@ class GrafanaProvider(Provider[GrafanaObject]):
 
     def sync_resources(
         self, mapped_resources: Iterable[MappedResource[GrafanaObject]]
-    ) -> Iterable[SyncedResource[GrafanaObject] | ObsoleteResource[GrafanaObject]]:
+    ) -> Iterable[SyncedResource[GrafanaObject] | LocalResource[GrafanaObject]]:
         return [self.handlers[type(r.local_object)].read(r) for r in mapped_resources]
 
     def diff(self, resource: SyncedResource[GrafanaObject]) -> RESOURCE_DIFF:

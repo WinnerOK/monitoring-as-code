@@ -36,16 +36,18 @@ def parse_singleton_group(group: AlertGroup, folder_title: str) -> Alert:
 class AlertHandler(HttpApiResourceHandler[Alert]):
     def read(
         self, resource: MappedResource[Alert]
-    ) -> SyncedResource[Alert] | ObsoleteResource[Alert]:
+    ) -> SyncedResource[Alert] | LocalResource[Alert]:
         remote_identifier = Alert.get_remote_identifier(resource.local_id)
         response = self.client.get(f"ruler/grafana/api/v1/rules/{remote_identifier}")
         if response.status_code == Status.NOT_FOUND:
-            return ObsoleteResource(
-                local_id=resource.local_id,
-                remote_id=resource.remote_id,
+            return LocalResource(
+                local_object=resource.local_object,
             )
         elif response.status_code == Status.ACCEPTED:
             json = response.json()
+            if not json['rules']:
+                return LocalResource(local_object=resource.local_object)
+
             alert_group = AlertGroup(**json)
             alert_id = alert_group.rules[0].grafana_alert.uid
             return SyncedResource(

@@ -15,7 +15,7 @@ class ResourceHandler(Generic[T], ABC):
     def read(
         self,
         resource: MappedResource[T],
-    ) -> SyncedResource[T] | ObsoleteResource[T]:
+    ) -> SyncedResource[T] | LocalResource[T]:
         pass
 
     @abstractmethod

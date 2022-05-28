@@ -24,7 +24,7 @@ class Provider(ABC, Generic[T]):
     def sync_resources(
         self,
         mapped_resources: Iterable[MappedResource[T]],
-    ) -> Iterable[SyncedResource[T] | ObsoleteResource[T]]:
+    ) -> Iterable[SyncedResource[T] | LocalResource[T]]:
         """
         Get remote state for given resources, if any
         """

@@ -14,14 +14,13 @@ class FolderHandler(HttpApiResourceHandler[Folder]):
     def read(
         self,
         resource: MappedResource[Folder],
-    ) -> SyncedResource[Folder] | ObsoleteResource[Folder]:
+    ) -> SyncedResource[Folder] | LocalResource[Folder]:
         # Get folder by uid
         response = self.client.get(f"folders/{resource.remote_id}")
 
         if response.status_code == Status.NOT_FOUND:
-            return ObsoleteResource(
-                local_id=resource.local_id,
-                remote_id=resource.remote_id,
+            return LocalResource(
+                local_object=resource.local_object
             )
         elif response.status_code == Status.OK:
             json = response.json()
