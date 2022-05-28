@@ -45,9 +45,6 @@ def green_fruits_bundle(datasource_uid: str) -> list[GrafanaObject]:
         folder_title=folder.title,
         evaluation_interval=Duration.from_timedelta(timedelta(seconds=20)),
         for_=Duration.from_timedelta(timedelta(minutes=3)),
-        labels={
-            "severity": "low",
-        },
         grafana_alert=PostableGrafanaRule(
             condition=expression_query.refId,
             title="GreenFruitLimit",
