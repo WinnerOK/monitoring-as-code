@@ -10,6 +10,8 @@ from requests import HTTPError, Response, Session
 
 from demo.applier.grafana_minimalistic import green_fruits_bundle
 
+GRAFANA_API_URL = "http://localhost:3000/api/"
+
 USERNAME = "admin"
 PASSWORD = "admin"
 DATASOURCE_UID = "PrometheusUID"
@@ -26,7 +28,7 @@ class BaseUrlSession(Session):
 
 
 def main():
-    grafana_session = BaseUrlSession(prefix_url="http://localhost:10050/api/")
+    grafana_session = BaseUrlSession(prefix_url=GRAFANA_API_URL)
     grafana_session.auth = (USERNAME, PASSWORD)
 
     grafana_provider = GrafanaProvider(grafana_session)
@@ -48,8 +50,8 @@ def main():
                 *green_fruits_bundle(DATASOURCE_UID),
                 *get_demo_checks(DATASOURCE_UID),
             ],
-            # dry_run=True,
-            dry_run=False,
+            dry_run=True,
+            # dry_run=False,
         )
     except HTTPError as e:
         logger.debug(e.response.json())
