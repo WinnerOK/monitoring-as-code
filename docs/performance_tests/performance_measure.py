@@ -178,7 +178,7 @@ def append_results_file(file: Path, alert_count: int, measurement: Measurement) 
 
 
 def main():
-    results_file = Path("monitor_measurements.csv")
+    results_file = Path("results/monitor_measurements.csv")
     setup_results_file(results_file)
 
     grafana_session = BaseUrlSession(prefix_url="http://localhost:3000/api/")

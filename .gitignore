@@ -4,7 +4,12 @@
 http-client.private.env.json
 state.json
 *_state.json
+
+# ignore personal sandboxed
 demo/sandbox
+
+# Ignore newly generates results
+docs/performance_tests/results/monitor_measurements.csv
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,pycharm,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm,macos
