@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "monitor"
+name = "monitoring_as_code"
 version = "0.0.1"
 description = "A monitoring as code approach library"
 authors = ["Daniil Manakovskiy <d.manakovskiy@innopolis.university>"]

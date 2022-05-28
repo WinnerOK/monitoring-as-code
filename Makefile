@@ -3,8 +3,8 @@ SHELL := /usr/bin/env bash
 PYTHON := python
 
 #* Directories with source code
-CODE = monitor tests
-CODE_FMT = monitor tests demo
+CODE = monitoring_as_code tests
+CODE_FMT = monitoring_as_code tests demo
 
 #* Poetry
 .PHONY: poetry-download

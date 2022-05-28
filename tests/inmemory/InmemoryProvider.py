@@ -1,8 +1,8 @@
 from typing import Collection, Iterable, Type
 
-from monitor.controller.diff_utils import RESOURCE_DIFF, calculate_diff
-from monitor.controller.provider import Provider, T
-from monitor.controller.resource import (
+from monitoring_as_code.controller.diff_utils import RESOURCE_DIFF, calculate_diff
+from monitoring_as_code.controller.provider import Provider, T
+from monitoring_as_code.controller.resource import (
     IdType,
     LocalResource,
     MappedResource,

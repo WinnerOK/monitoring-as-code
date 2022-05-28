@@ -1,4 +1,4 @@
-from monitor.controller.state import RESOURCE_ID_MAPPING, State, StateData
+from monitoring_as_code.controller.state import RESOURCE_ID_MAPPING, State, StateData
 
 
 class InmemoryState(State):

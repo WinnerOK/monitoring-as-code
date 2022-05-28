@@ -4,7 +4,7 @@ from abc import ABC
 
 from pydantic import BaseModel
 
-from monitor.controller.obj import MonitoringObject
+from monitoring_as_code.controller.obj import MonitoringObject
 
 T = TypeVar("T", bound=MonitoringObject)
 

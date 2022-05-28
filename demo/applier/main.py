@@ -1,15 +1,14 @@
 from pathlib import Path
 from urllib.parse import urljoin
 
-from loguru import logger
-from requests import Response, Session, HTTPError
-
 from binds.grafana.grafana_provider import GrafanaProvider
 from controller.monitor import Monitor
 from controller.states import FileState
-from demo.applier.grafana_minimalistic import green_fruits_bundle
-
 from grafana_modelled_conds import get_checks as get_demo_checks
+from loguru import logger
+from requests import HTTPError, Response, Session
+
+from demo.applier.grafana_minimalistic import green_fruits_bundle
 
 USERNAME = "admin"
 PASSWORD = "admin"
@@ -57,5 +56,5 @@ def main():
         raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

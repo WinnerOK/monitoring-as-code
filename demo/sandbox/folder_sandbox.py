@@ -1,7 +1,7 @@
 from requests.auth import HTTPBasicAuth
 
-from monitor.binds.grafana.handlers.folder import FolderHandler
-from monitor.binds.grafana.resources import Folder
+from monitoring_as_code.binds.grafana.handlers.folder import FolderHandler
+from monitoring_as_code.binds.grafana.resources import Folder
 
 DEBUG = False
 USERNAME = "admin"

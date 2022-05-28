@@ -4,9 +4,9 @@ from copy import deepcopy
 
 import pytest
 
-from monitor.controller.monitor import Monitor
-from monitor.controller.resource import generate_resource_local_id
-from monitor.controller.state import RESOURCE_ID_MAPPING
+from monitoring_as_code.controller.monitor import Monitor
+from monitoring_as_code.controller.resource import generate_resource_local_id
+from monitoring_as_code.controller.state import RESOURCE_ID_MAPPING
 from tests.inmemory.InmemoryObject import (
     InmemoryObject,
     NestedComposeInmemoryObject,

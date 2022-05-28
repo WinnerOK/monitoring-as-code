@@ -1,6 +1,6 @@
 from abc import ABC
 
-from monitor.controller.obj import MonitoringObject
+from monitoring_as_code.controller.obj import MonitoringObject
 
 
 class InmemoryObject(MonitoringObject, ABC):

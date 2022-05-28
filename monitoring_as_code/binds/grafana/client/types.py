@@ -21,10 +21,7 @@ class RelativeTimeRange(BaseModel):
 
     @classmethod
     def last(cls, delta: timedelta):
-        return cls(
-            from_=int(delta.total_seconds()),
-            to=0
-        )
+        return cls(from_=int(delta.total_seconds()), to=0)
 
     @classmethod
     def instant(cls):

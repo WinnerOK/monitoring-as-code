@@ -71,4 +71,3 @@ def get_checks(datasource_uid: str) -> list[GrafanaObject]:
         demo_alert,
         another_demo_alert,
     ]
-

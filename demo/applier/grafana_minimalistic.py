@@ -1,10 +1,15 @@
 from datetime import timedelta
 
-from binds.grafana.client.alert_queries import PrometheusQuery, ClassicExpression
+from binds.grafana.client.alert_queries import ClassicExpression, PrometheusQuery
+from binds.grafana.client.alert_queries.classic_conditions import (
+    GT,
+    ClassicCondition,
+    Reducers,
+)
+from binds.grafana.client.alert_queries.classic_conditions import dictify_condition as d
 from binds.grafana.client.alerting import AlertQuery, PostableGrafanaRule
-from binds.grafana.client.types import RelativeTimeRange, Duration
-from binds.grafana.objects import GrafanaObject, Folder, Alert
-from binds.grafana.client.alert_queries.classic_conditions import dictify_condition as d, ClassicCondition, Reducers, GT
+from binds.grafana.client.types import Duration, RelativeTimeRange
+from binds.grafana.objects import Alert, Folder, GrafanaObject
 
 
 def green_fruits_bundle(datasource_uid: str) -> list[GrafanaObject]:
@@ -14,10 +19,10 @@ def green_fruits_bundle(datasource_uid: str) -> list[GrafanaObject]:
         datasourceUid=datasource_uid,
         relativeTimeRange=RelativeTimeRange.last(timedelta(minutes=10)),
         model=PrometheusQuery(
-            refId='GreenFruitsCount',
+            refId="GreenFruitsCount",
             expr='number_of_fruits{color="green"}',
-            interval=Duration('1m')
-        )
+            interval=Duration("1m"),
+        ),
     )
 
     expression_query = AlertQuery(
@@ -33,7 +38,7 @@ def green_fruits_bundle(datasource_uid: str) -> list[GrafanaObject]:
                     )
                 )
             ],
-        )
+        ),
     )
 
     alert = Alert(
@@ -47,7 +52,7 @@ def green_fruits_bundle(datasource_uid: str) -> list[GrafanaObject]:
             condition=expression_query.refId,
             title="GreenFruitLimit",
             data=[data_query, expression_query],
-        )
+        ),
     )
 
     return [folder, alert]
